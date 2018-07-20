@@ -4,13 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParserLib
+namespace ParserLib.Json
 {
-	class Program
+	public class JsonElement
 	{
-		static void Main(string[] args)
-		{
-		
-		}
 	}
 }

@@ -4,20 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JsonParser
+namespace ParserLib.Json
 {
-	public class JsonNode
+	public class JsonObject : JsonElement
 	{
 		#region Properties
-		public object Data { get; private set; }
+		public IDictionary<JsonString, JsonObject> Members { get; protected set; }
 		#endregion
 
 
 		#region Constructors
-		internal JsonNode(object data)
-		{
-			Data = data;
-		}
 		#endregion
 
 

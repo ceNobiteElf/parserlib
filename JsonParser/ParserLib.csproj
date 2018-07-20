@@ -42,9 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JsonNode.cs" />
-    <Compile Include="JsonTree.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Json\JsonArray.cs" />
+    <Compile Include="Json\JsonBool.cs" />
+    <Compile Include="Json\JsonElement.cs" />
+    <Compile Include="Json\JsonNumber.cs" />
+    <Compile Include="Json\JsonObject.cs" />
+    <Compile Include="Json\JsonString.cs" />
+    <Compile Include="Json\JsonNull.cs" />
+    <Compile Include="Json\Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

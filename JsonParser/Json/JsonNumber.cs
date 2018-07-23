@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ParserLib.Json
+﻿namespace ParserLib.Json
 {
 	public class JsonNumber : JsonElement
 	{
+		#region Properties
+		public double Value { get; set; }
+		#endregion
+
+
+		#region Constructors
+		public JsonNumber()
+			: this(default(double)) { }
+
+		public JsonNumber(double value)
+		{
+			Value = value;
+		}
+		#endregion
 	}
 }

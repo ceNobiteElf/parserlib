@@ -1,25 +1,37 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ParserLib.Json
 {
-	public class JsonArray : JsonElement
+	public class JsonArray : JsonElement, IEnumerable
 	{
 		#region Properties
-		public IList<JsonElement> Values { get; private set; }
+		public IList<JsonElement> Values { get; protected set; }
 		#endregion
 
 
 		#region Constructors
-		internal JsonArray(JsonObject value) { }
+		public JsonArray()
+		{
+			Values = new List<JsonElement>();
+		}
 		#endregion
 
 
-		#region Public API
+		#region Interface Implementation - IEnumerable
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return Values.GetEnumerator();
+		}
+		#endregion
 
+
+		#region Operator Overloads
+		public JsonElement this[int index]
+		{
+			get { return Values[index]; }
+			set { Values[index] = value; }
+		}
 		#endregion
 	}
 }

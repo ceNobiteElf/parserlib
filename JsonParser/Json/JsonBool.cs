@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ParserLib.Json
+﻿namespace ParserLib.Json
 {
 	public class JsonBool : JsonElement
 	{
+		#region Properties
+		public bool Value { get; set; }
+		#endregion
+
+
+		#region Constructors
+		public JsonBool()
+			: this(default(bool)) { }
+
+		public JsonBool(bool value)
+		{
+			Value = value;
+		}
+		#endregion
 	}
 }

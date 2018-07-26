@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ParserLib.Json
 {
-	public class JsonString : JsonElement, IEnumerable, IEnumerable<char>, IEquatable<JsonString>, IEquatable<string>
+	public sealed class JsonString : JsonElement, IEnumerable, IEnumerable<char>, IEquatable<JsonString>, IEquatable<string>
 	{
 		#region Properties
 		public string Value { get; set; }

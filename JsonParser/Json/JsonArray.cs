@@ -18,6 +18,11 @@ namespace ParserLib.Json
 		{
 			Values = new List<JsonElement>();
 		}
+
+		public JsonArray(IList<JsonElement> values)
+		{
+			Values = new List<JsonElement>(values);
+		}
 		#endregion
 
 
@@ -37,7 +42,7 @@ namespace ParserLib.Json
 		#endregion
 
 
-		#region Interface Implementation - IList
+		#region Interface Implementation - IList<JsonElement>
 		public void Clear()
 		{
 			Values.Clear();
@@ -94,10 +99,20 @@ namespace ParserLib.Json
 
 
 		#region Operator Overloads
-		public JsonElement this[int index]
+		new public JsonElement this[int index]
 		{
 			get { return Values[index]; }
 			set { Values[index] = value; }
+		}
+
+		public static implicit operator JsonArray(List<JsonElement> values)
+		{
+			return new JsonArray(values);
+		}
+
+		public static explicit operator List<JsonElement>(JsonArray obj)
+		{
+			return (List<JsonElement>)obj.Values;
 		}
 		#endregion
 

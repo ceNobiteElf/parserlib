@@ -21,6 +21,11 @@ namespace ParserLib.Json
 		{
 			Elements = new Dictionary<JsonString, JsonElement>();
 		}
+
+		public JsonObject(IDictionary<JsonString, JsonElement> elements)
+		{
+			Elements = new Dictionary<JsonString, JsonElement>(elements);
+		}
 		#endregion
 
 
@@ -102,7 +107,7 @@ namespace ParserLib.Json
 
 
 		#region Operator Overloads
-		public JsonElement this[JsonString index]
+		new public JsonElement this[JsonString index]
 		{
 			get
 			{
@@ -123,6 +128,24 @@ namespace ParserLib.Json
 					Add(index, value);
 				}
 			}
+		}
+
+		public static implicit operator JsonObject(Dictionary<JsonString, JsonElement> elements)
+		{
+			return new JsonObject(elements);
+		}
+
+		public static explicit operator Dictionary<JsonString, JsonElement>(JsonObject obj)
+		{
+			return (Dictionary<JsonString, JsonElement>)obj.Elements;
+		}
+		#endregion
+
+
+		#region Public API
+		public Dictionary<JsonString, JsonElement> ToDictionary()
+		{
+			return new Dictionary<JsonString, JsonElement>(Elements);
 		}
 		#endregion
 	}

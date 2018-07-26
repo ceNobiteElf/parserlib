@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -138,6 +139,7 @@ namespace ParserLib.Json
 
 			JsonString key = null;
 			JsonElement value = null;
+			bool valueAdded = false;
 
 			while (control.ReadNextCharacter() != '}')
 			{
@@ -156,6 +158,7 @@ namespace ParserLib.Json
 						else
 						{
 							value = ParseString(control);
+							valueAdded = false;
 						}
 						break;
 
@@ -167,16 +170,9 @@ namespace ParserLib.Json
 						break;
 
 					case ',':
-						if (value == null)
+						if (!valueAdded)
 						{
 							throw new Exception();
-						}
-						else
-						{
-							obj.Add(key, value);
-
-							key = null;
-							value = null;
 						}
 						break;
 
@@ -185,6 +181,7 @@ namespace ParserLib.Json
 
 					case '[':
 						value = ParseArray(control);
+						valueAdded = false;
 						break;
 
 					case 'T':
@@ -192,19 +189,31 @@ namespace ParserLib.Json
 					case 'F':
 					case 'f':
 						value = ParseBool(control);
+						valueAdded = false;
 						break;
 
 					case 'N':
 					case 'n':
 						value = ParseNull(control);
+						valueAdded = false;
 						break;
 
 					default:
 						if (char.IsNumber(control.CurrentCharacter) || control.CurrentCharacter == '-')
 						{
 							value = ParseNumber(control);
+							valueAdded = false;
 						}
 						break;
+				}
+
+				if (value != null)
+				{
+					obj.Add(key, value);
+
+					key = null;
+					value = null;
+					valueAdded = true;
 				}
 			}
 
@@ -221,6 +230,7 @@ namespace ParserLib.Json
 			JsonArray array = new JsonArray();
 
 			JsonElement value = null;
+			bool valueAdded = false;
 
 			while (control.ReadNextCharacter() != ']')
 			{
@@ -228,26 +238,22 @@ namespace ParserLib.Json
 				{
 					case '{':
 						value = ParseObject(control);
+						valueAdded = false;
 						break;
 
 					case '\'':
 					case '"':
 						value = ParseString(control);
+						valueAdded = false;
 						break;
 
 					case ':':
 						throw new Exception();
 
 					case ',':
-						if (value == null)
+						if (!valueAdded)
 						{
 							throw new Exception();
-						}
-						else
-						{
-							array.Add(value);
-
-							value = null;
 						}
 						break;
 
@@ -256,6 +262,7 @@ namespace ParserLib.Json
 
 					case '[':
 						value = ParseArray(control);
+						valueAdded = false;
 						break;
 
 					case 'T':
@@ -263,19 +270,30 @@ namespace ParserLib.Json
 					case 'F':
 					case 'f':
 						value = ParseBool(control);
+						valueAdded = false;
 						break;
 
 					case 'N':
 					case 'n':
 						value = ParseNull(control);
+						valueAdded = false;
 						break;
 
 					default:
 						if (char.IsNumber(control.CurrentCharacter) || control.CurrentCharacter == '-')
 						{
 							value = ParseNumber(control);
+							valueAdded = false;
 						}
 						break;
+				}
+
+				if (value != null)
+				{
+					array.Add(value);
+
+					value = null;
+					valueAdded = true;
 				}
 			}
 
@@ -306,7 +324,14 @@ namespace ParserLib.Json
 					{
 						if (control.CurrentCharacter == 'u')
 						{
-							throw new NotImplementedException();
+							var unicodeHex = new StringBuilder();
+
+							for (int i = 0; i < 4; ++i)
+							{
+								unicodeHex.Append(control.ReadNextCharacter());
+							}
+
+							escapedChar = (char)int.Parse(unicodeHex.ToString(), NumberStyles.AllowHexSpecifier);
 						}
 						else
 						{
@@ -327,7 +352,15 @@ namespace ParserLib.Json
 
 		static JsonNumber ParseNumber(Control control)
 		{
-			return null;
+			var sb = new StringBuilder();
+			do
+			{
+				sb.Append(control.CurrentCharacter);
+
+				control.ReadNextCharacter();
+			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != ',' && control.CurrentCharacter != '}');
+
+			return new JsonNumber(double.Parse(sb.ToString(), CultureInfo.InvariantCulture));
 		}
 
 		static JsonBool ParseBool(Control control)
@@ -340,7 +373,7 @@ namespace ParserLib.Json
 				sb.Append(control.CurrentCharacter);
 
 				control.ReadNextCharacter();
-			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != '}');
+			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != ',' && control.CurrentCharacter != '}');
 
 			switch (sb.ToString().ToLowerInvariant())
 			{
@@ -367,7 +400,7 @@ namespace ParserLib.Json
 				sb.Append(control.CurrentCharacter);
 
 				control.ReadNextCharacter();
-			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != '}');
+			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != ',' && control.CurrentCharacter != '}');
 
 			if (!sb.ToString().ToLowerInvariant().Equals("null"))
 			{

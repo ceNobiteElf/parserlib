@@ -30,12 +30,15 @@
 		#endregion
 
 
-		#region Operator Overloads
-		public static implicit operator char(JsonNull obj)
+		#region Object Overrides
+		public override string ToString()
 		{
-			return '\0';
+			return "null";
 		}
+		#endregion
 
+
+		#region Operator Overloads
 		public static implicit operator string(JsonNull obj)
 		{
 			return null;

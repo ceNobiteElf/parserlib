@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace ParserLib.Json
 {
-	public class JsonString : JsonElement, IEnumerable, IEquatable<JsonString>
+	public class JsonString : JsonElement, IEnumerable, IEnumerable<char>, IEquatable<JsonString>, IEquatable<string>
 	{
 		#region Properties
 		public string Value { get; set; }
@@ -29,7 +30,15 @@ namespace ParserLib.Json
 		#endregion
 
 
-		#region Interface Implementation - IEquatable
+		#region Interface Implementation - IEnumerable<char>
+		public IEnumerator<char> GetEnumerator()
+		{
+			return Value.GetEnumerator();
+		}
+		#endregion
+
+
+		#region Interface Implementation - IEquatable<JsonString>
 		public bool Equals(JsonString other)
 		{
 			return other != null && Value.Equals(other.Value);
@@ -37,7 +46,15 @@ namespace ParserLib.Json
 		#endregion
 
 
-		#region Object Overloads
+		#region Interface Implementation - IEquatable<string>
+		public bool Equals(string other)
+		{
+			return Value.Equals(other);
+		}
+		#endregion
+
+
+		#region Object Overrides
 		public override int GetHashCode()
 		{
 			return Value.GetHashCode();
@@ -61,9 +78,9 @@ namespace ParserLib.Json
 			return new JsonString(str);
 		}
 
-		public static explicit operator string(JsonString str)
+		public static explicit operator string(JsonString obj)
 		{
-			return str.Value;
+			return obj.Value;
 		}
 		#endregion
 	}

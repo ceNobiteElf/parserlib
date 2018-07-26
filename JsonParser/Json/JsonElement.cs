@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ParserLib.Json
 {
-	public class JsonElement
+	public abstract class JsonElement
 	{
 	}
 }

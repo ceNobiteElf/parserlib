@@ -8,6 +8,8 @@ namespace ParserLib.Json
 	{
 		#region Properties
 		public string Value { get; set; }
+
+		public int Length { get => Value?.Length ?? 0; }
 		#endregion
 
 
@@ -24,64 +26,48 @@ namespace ParserLib.Json
 
 		#region Interface Implementation - IEnumerable
 		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return Value.GetEnumerator();
-		}
+			=> Value.GetEnumerator();
 		#endregion
 
 
 		#region Interface Implementation - IEnumerable<char>
 		public IEnumerator<char> GetEnumerator()
-		{
-			return Value.GetEnumerator();
-		}
+			=> Value.GetEnumerator();
 		#endregion
 
 
 		#region Interface Implementation - IEquatable<JsonString>
 		public bool Equals(JsonString other)
-		{
-			return other != null && Value.Equals(other.Value);
-		}
+			=> other != null && Value.Equals(other.Value);
 		#endregion
 
 
 		#region Interface Implementation - IEquatable<string>
 		public bool Equals(string other)
-		{
-			return Value.Equals(other);
-		}
+			=> Value.Equals(other);
 		#endregion
 
 
 		#region Object Overrides
 		public override int GetHashCode()
-		{
-			return Value.GetHashCode();
-		}
+			=> Value.GetHashCode();
 
 		public override bool Equals(object obj)
-		{
-			return Value.Equals(obj);
-		}
+			=> Value.Equals(obj);
 
 		public override string ToString()
-		{
-			return Value;
-		}
+			=> Value;
 		#endregion
 
 
 		#region Operator Overloads
+		new public char this[int index] { get => Value?[index] ?? '\0'; }
+
 		public static implicit operator JsonString(string str)
-		{
-			return new JsonString(str);
-		}
+			=> new JsonString(str);
 
 		public static explicit operator string(JsonString obj)
-		{
-			return obj.Value;
-		}
+			=> obj.Value;
 		#endregion
 	}
 }

@@ -9,7 +9,7 @@ namespace ParserLib
 	{
 		static void Main(string[] args)
 		{
-			/*JsonObject obj = Parser.Parse(@"D:\Libraries\Desktop\JsonTest\cars.json");
+			/*JsonObject obj = Parser.ParseFile(@"D:\Libraries\Desktop\JsonTest\cars.json");
 
 			Console.WriteLine(obj.Count);
 
@@ -20,7 +20,12 @@ namespace ParserLib
 
 			Console.WriteLine(obj["cars"][1]["name"]);*/
 
-			Console.ReadKey();
+			JsonObject obj = Parser.ParseString("{ 'name' : 'Con' }");
+
+			Console.WriteLine(obj.Count);
+			Console.WriteLine(obj["name"]);
+
+			 Console.ReadKey();
 		}
 	}
 }

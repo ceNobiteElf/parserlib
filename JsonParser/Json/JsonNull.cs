@@ -3,20 +3,9 @@
 	public sealed class JsonNull : JsonElement
 	{
 		#region Properties
-		public static JsonNull Instance
-		{
-			get
-			{
-				if (mInstance == null)
-				{
-					mInstance = new JsonNull();
-				}
+		public static JsonNull Instance { get => mInstance ?? (mInstance = new JsonNull()); }
 
-				return mInstance;
-			}
-		}
-
-		public object Value { get { return null; } }
+		public object Value { get => null; }
 		#endregion
 
 
@@ -32,37 +21,25 @@
 
 		#region Object Overrides
 		public override string ToString()
-		{
-			return "null";
-		}
+			=> "null";
 		#endregion
 
 
 		#region Operator Overloads
 		public static implicit operator string(JsonNull obj)
-		{
-			return null;
-		}
-
+			=> null;
+		
 		public static implicit operator bool(JsonNull obj)
-		{
-			return false;
-		}
+			=> false;
 
 		public static implicit operator int(JsonNull obj)
-		{
-			return 0;
-		}
+			=> 0;
 
 		public static implicit operator float(JsonNull obj)
-		{
-			return 0f;
-		}
+			=> 0f;
 
 		public static implicit operator double(JsonNull obj)
-		{
-			return 0.0;
-		}
+			=> 0.0;
 		#endregion
 	}
 }

@@ -8,101 +8,73 @@ namespace ParserLib.Json
 		#region Properties
 		private IDictionary<JsonString, JsonElement> Elements { get; set; }
 
-		public int Count { get { return Elements.Count; } }
-		public bool IsReadOnly { get { return Elements.IsReadOnly; } }
+		public int Count { get => Elements.Count; }
+		public bool IsReadOnly { get => Elements.IsReadOnly; } 
 
-		public ICollection<JsonString> Keys { get { return Elements.Keys; } }
-		public ICollection<JsonElement> Values { get { return Elements.Values; } }
+		public ICollection<JsonString> Keys { get => Elements.Keys; }
+		public ICollection<JsonElement> Values { get => Elements.Values; }
 		#endregion
 
 
 		#region Constructors
 		public JsonObject()
-		{
-			Elements = new Dictionary<JsonString, JsonElement>();
-		}
+			: this(new Dictionary<JsonString, JsonElement>()) { }
 
-		public JsonObject(IDictionary<JsonString, JsonElement> elements)
+		public JsonObject(Dictionary<JsonString, JsonElement> elements)
 		{
-			Elements = new Dictionary<JsonString, JsonElement>(elements);
+			Elements = elements;
 		}
 		#endregion
 
 
 		#region Interface Implementation - IEnumerable
 		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+			=> GetEnumerator();
 		#endregion
 
 
 		#region Interface Implementation - IEnumerable<KeyValuePair<JsonString, JsonElement>>
 		public IEnumerator<KeyValuePair<JsonString, JsonElement>> GetEnumerator()
-		{
-			return Elements.GetEnumerator();
-		}
+			=> Elements.GetEnumerator();
 		#endregion
 
 
 		#region Interface Implementation - IDictionary<JsonString, JsonElement>
 		public void Clear()
-		{
-			Elements.Clear();
-		}
+			=> Elements.Clear();
 
 		public bool Contains(KeyValuePair<JsonString, JsonElement> item)
-		{
-			return Elements.Contains(item);
-		}
+			=> Elements.Contains(item);
 
 		public bool ContainsKey(JsonString key)
-		{
-			return Elements.ContainsKey(key);
-		}
+			=> Elements.ContainsKey(key);
 
 		public bool TryGetValue(JsonString key, out JsonElement value)
-		{
-			return Elements.TryGetValue(key, out value);
-		}
+			=> Elements.TryGetValue(key, out value);
 
 		public void Add(JsonString key, JsonElement value)
-		{
-			Elements.Add(key, value);
-		}
+			=> Elements.Add(key, value);
 
 		public void Add(KeyValuePair<JsonString, JsonElement> item)
-		{
-			Elements.Add(item);
-		}
+			=> Elements.Add(item);
 
 		public bool Remove(JsonString key)
-		{
-			return Elements.Remove(key);
-		}
+			=> Elements.Remove(key);
 
 		public bool Remove(KeyValuePair<JsonString, JsonElement> item)
-		{
-			return Elements.Remove(item);
-		}
+			=> Elements.Remove(item);
 
 		public void CopyTo(KeyValuePair<JsonString, JsonElement>[] array, int arrayIndex)
-		{
-			Elements.CopyTo(array, arrayIndex);
-		}
+			=> Elements.CopyTo(array, arrayIndex);
 		#endregion
 
 
 		#region Object Overrides
 		public override int GetHashCode()
-		{
-			return Elements.GetHashCode();
-		}
+			=> Elements.GetHashCode();
 
 		public override bool Equals(object obj)
-		{
-			return Elements.Equals(obj);
-		}
+			=> Elements.Equals(obj);
 		#endregion
 
 
@@ -131,22 +103,16 @@ namespace ParserLib.Json
 		}
 
 		public static implicit operator JsonObject(Dictionary<JsonString, JsonElement> elements)
-		{
-			return new JsonObject(elements);
-		}
+			=> new JsonObject(elements);
 
 		public static explicit operator Dictionary<JsonString, JsonElement>(JsonObject obj)
-		{
-			return (Dictionary<JsonString, JsonElement>)obj.Elements;
-		}
+			=> (Dictionary<JsonString, JsonElement>)obj.Elements;
 		#endregion
 
 
 		#region Public API
 		public Dictionary<JsonString, JsonElement> ToDictionary()
-		{
-			return new Dictionary<JsonString, JsonElement>(Elements);
-		}
+			=> new Dictionary<JsonString, JsonElement>(Elements);
 		#endregion
 	}
 }

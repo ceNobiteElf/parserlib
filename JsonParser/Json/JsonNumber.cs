@@ -21,49 +21,35 @@ namespace ParserLib.Json
 
 
 		#region Interface Implementation - IEquatable<JsonNumber>
-		public bool Equals(JsonNumber other)
-		{
-			return other != null && Value.Equals(other.Value);
-		}
+		public bool Equals(JsonNumber other)	
+			=> other != null && Value.Equals(other.Value);
 		#endregion
 
 
 		#region Interface Implementation - IEquatable<double>
 		public bool Equals(double other)
-		{
-			return Value.Equals(other);
-		}
+			=> Value.Equals(other);
 		#endregion
 
 
 		#region Object Overrides
 		public override int GetHashCode()
-		{
-			return Value.GetHashCode();
-		}
+			=> Value.GetHashCode();
 
 		public override bool Equals(object obj)
-		{
-			return Value.Equals(obj);
-		}
+			=> Value.Equals(obj);
 
 		public override string ToString()
-		{
-			return Value.ToString();
-		}
+			=> Value.ToString();
 		#endregion
 
 
 		#region Operator Overloads
 		public static implicit operator JsonNumber(double value)
-		{
-			return new JsonNumber(value);
-		}
+			=> new JsonNumber(value);
 
 		public static explicit operator double(JsonNumber obj)
-		{
-			return obj.Value;
-		}
+			=> obj.Value;
 		#endregion
 	}
 }

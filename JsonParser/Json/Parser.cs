@@ -1,78 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Text;
+
+using ParserLib.Json.Internal;
 
 namespace ParserLib.Json
 {
 	public class Parser
 	{
-		#region Internal Types
-		private class Control : IDisposable
-		{
-			public FileStream Stream { get; private set; }
-			public StreamReader Reader { get; private set; }
-
-			public int BlockSize { get; private set; }
-			public char[] Buffer { get; private set; }
-
-			public int BytesRead { get; private set; }
-
-			public int CurrentBufferPosition { get; private set; }
-			public char CurrentCharacter { get; private set; }
-
-			public Control(string filePath, int blockSize)
-			{
-				Stream = File.OpenRead(filePath);
-				Reader = new StreamReader(Stream);
-
-				BlockSize = blockSize;
-				Buffer = new char[blockSize];
-			}
-
-			public char ReadNextCharacter()
-			{
-				if (BytesRead == 0 || CurrentBufferPosition >= BytesRead)
-				{
-					ReadBlock();
-
-					if (BytesRead == 0)
-					{
-						return '\0';
-					}
-				}
-
-				CurrentCharacter = Buffer[CurrentBufferPosition++];
-
-				return CurrentCharacter;
-			}
-
-			public int ReadBlock()
-			{
-				BytesRead = Reader.Read(Buffer, 0, BlockSize);
-
-				CurrentBufferPosition = 0;
-
-				return BytesRead;
-			}
-
-			public void Dispose()
-			{
-				Reader.Dispose();
-				Stream.Dispose();
-			}
-		}
-		#endregion
-
-
-		#region Constants
-		public const int DefaultBlockSize = 4096;
-		#endregion
-
-
 		#region Properties
-		private static IDictionary<string, Control> Controls { get; set; }
+		private static IDictionary<string, Control> FileControls { get; set; }
 
 		private static IDictionary<char, char> EscapeSequenceLookup { get; set; }
 		#endregion
@@ -81,7 +19,7 @@ namespace ParserLib.Json
 		#region Constructors
 		static Parser()
 		{
-			Controls = new Dictionary<string, Control>();
+			FileControls = new Dictionary<string, Control>();
 
 			EscapeSequenceLookup = new Dictionary<char, char> {
 				{ '"', '\"' }, { '\\', '\\' }, { '/', '/' },
@@ -94,45 +32,60 @@ namespace ParserLib.Json
 
 
 		#region Public API
-		public static JsonObject Parse(string filePath, int blockSize = DefaultBlockSize)
+		public static JsonObject ParseFile(string filePath, int blockSize = FileControl.DefaultBlockSize)
 		{
-			var fileInfo = new FileInfo(filePath);
+			var control = new FileControl(filePath, blockSize);
 
-			if (!fileInfo.Exists)
+			if (FileControls.ContainsKey(control.FilePath))
 			{
 				throw new Exception();
 			}
 
-			if (Controls.ContainsKey(fileInfo.FullName))
+			FileControls.Add(control.FilePath, control);
+
+			try
 			{
-				throw new Exception();
+				return Parse(control);
 			}
-
-			JsonObject result = null;
-
-			using (var control = new Control(fileInfo.FullName, blockSize))
+			finally
 			{
-				Controls.Add(fileInfo.FullName, control);
-
-				while (control.ReadNextCharacter() != '\0')
-				{
-					switch (control.CurrentCharacter)
-					{
-						case '{':
-							result = ParseObject(control);
-							break;
-					}
-				}
-
-				Controls.Remove(fileInfo.FullName);
+				FileControls.Remove(control.FilePath);
+				control.Dispose();
 			}
+		}
 
-			return result;
+		public static JsonObject ParseString(string jsonString)
+		{
+			var control = new StringControl(jsonString);
+
+			try
+			{
+				return Parse(control);
+			}
+			finally
+			{
+				control.Dispose();
+			}
 		}
 		#endregion
 
 
 		#region Helper Functions
+		static JsonObject Parse(Control control)
+		{
+			JsonObject result = null;
+
+			while (control.ReadNextCharacter() != '\0')
+			{
+				if (control.CurrentCharacter == '{')
+				{
+					result = ParseObject(control);
+				}
+			}
+
+			return result;
+		}
+
 		static JsonObject ParseObject(Control control)
 		{
 			var obj = new JsonObject();

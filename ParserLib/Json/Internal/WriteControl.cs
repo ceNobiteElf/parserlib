@@ -7,11 +7,25 @@ namespace ParserLib.Json.Internal
 		#region Properties
 		public bool PrettyPrint { get; }
 
-		public int IndentationLevel { get; private set; }
+		public int IndentationLevel
+		{
+			get => mIndentationLevel;
+			private set
+			{
+				mIndentationLevel = value;
+				Indentation = GetIndentation(mIndentationLevel);
+			}
+		}
+
 		public int TabWidth { get; }
 		public string Indentation { get; private set; }
 
 		public string NewLine { get; }
+		#endregion
+
+
+		#region Variables
+		private int mIndentationLevel;
 		#endregion
 
 
@@ -35,13 +49,13 @@ namespace ParserLib.Json.Internal
 
 		#region Public API
 		public string GetIndentation(int level)
-			=> new String(' ', level * TabWidth);
+			=> level > 0 ? new String(' ', level * TabWidth) : string.Empty;
 
 		public void Indent()
-			=> Indentation = GetIndentation(++IndentationLevel);
+			=> ++IndentationLevel;
 
 		public void Unindent()
-			=> Indentation = GetIndentation(--IndentationLevel);
+			=> --IndentationLevel;
 
 		public void WriteIndentation()
 		{

@@ -178,13 +178,13 @@ namespace ParserLib.Json
 					{
 						value.Append(sequence);
 					}
-					else if (c >= 0x20 && c <= 0x7E)
+					else if (c < 0x20 || (true && 0x7E < c)) //TODO replace true with a variable to determine whether we should force ascii or not
 					{
-						value.Append(c);
+						value.Append($"\\u{((ushort)c).ToString("x4")}");
 					}
 					else
 					{
-						value.Append($"\\u{((int)c).ToString("x4")}");
+						value.Append(c);
 					}
 				}
 

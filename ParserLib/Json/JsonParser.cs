@@ -7,41 +7,33 @@ using ParserLib.Json.Internal;
 
 namespace ParserLib.Json
 {
-	public class Parser
+	public static class JsonParser
 	{
 		#region Properties
-		private static IDictionary<string, Control> FileControls { get; set; }
-
-		private static IDictionary<char, char> EscapeSequenceLookup { get; set; }
+		private static IDictionary<char, char> EscapeSequenceLookup { get; }
 		#endregion
 
 
 		#region Constructors
-		static Parser()
+		static JsonParser()
 		{
-			FileControls = new Dictionary<string, Control>();
-
 			EscapeSequenceLookup = new Dictionary<char, char> {
-				{ '"', '\"' }, { '\\', '\\' }, { '/', '/' },
-				{ 'a', '\a' }, { 'b', '\b' }, { 'f', '\f' },
-				{ 'n', '\n' }, { 'r', '\r' }, { 't', '\t' },
-				{ 'v', '\a' }
+				{ '\'', '\'' }, { '"', '\"' }, { '\\', '\\' },
+				{ '/', '/' },   { 'a', '\a' }, { 'b', '\b' },
+				{ 'f', '\f' },  { 'n', '\n' }, { 'r', '\r' },
+				{ 't', '\t' },  { 'v', '\v' }
 			};
 		}
 		#endregion
 
 
 		#region Public API
-		public static JsonObject ParseFile(string filePath, int blockSize = FileControl.DefaultBlockSize)
+		public static T ParseFromFile<T>(string filePath, int bufferSize = FileReadControl.DefaultBufferSize) where T : JsonElement, IJsonRoot
+			=> (T)ParseFromFile(filePath, bufferSize);
+
+		public static JsonElement ParseFromFile(string filePath, int bufferSize = FileReadControl.DefaultBufferSize)
 		{
-			var control = new FileControl(filePath, blockSize);
-
-			if (FileControls.ContainsKey(control.FilePath))
-			{
-				throw new Exception();
-			}
-
-			FileControls.Add(control.FilePath, control);
+			var control = new FileReadControl(filePath, bufferSize);
 
 			try
 			{
@@ -49,14 +41,16 @@ namespace ParserLib.Json
 			}
 			finally
 			{
-				FileControls.Remove(control.FilePath);
 				control.Dispose();
 			}
 		}
 
-		public static JsonObject ParseString(string jsonString)
+		public static T ParseFromString<T>(string rawJson) where T : JsonElement, IJsonRoot
+			=> (T)ParseFromString(rawJson);
+
+		public static JsonElement ParseFromString(string rawJson)
 		{
-			var control = new StringControl(jsonString);
+			var control = new StringReadControl(rawJson);
 
 			try
 			{
@@ -71,9 +65,9 @@ namespace ParserLib.Json
 
 
 		#region Helper Functions
-		static JsonObject Parse(Control control)
+		static JsonElement Parse(ReadControl control)
 		{
-			JsonObject result = null;
+			JsonElement result = null;
 
 			while (control.ReadNextCharacter() != '\0')
 			{
@@ -81,12 +75,16 @@ namespace ParserLib.Json
 				{
 					result = ParseObject(control);
 				}
+				else if (control.CurrentCharacter == '[')
+				{
+					result = ParseArray(control);
+				}
 			}
 
 			return result;
 		}
 
-		static JsonObject ParseObject(Control control)
+		static JsonObject ParseObject(ReadControl control)
 		{
 			var obj = new JsonObject();
 
@@ -178,7 +176,7 @@ namespace ParserLib.Json
 			return obj;
 		}
 
-		static JsonArray ParseArray(Control control)
+		static JsonArray ParseArray(ReadControl control)
 		{
 			JsonArray array = new JsonArray();
 
@@ -258,7 +256,7 @@ namespace ParserLib.Json
 			return array;
 		}
 
-		static JsonString ParseString(Control control)
+		static JsonString ParseString(ReadControl control)
 		{
 			char enclosingChar = control.CurrentCharacter;
 
@@ -303,7 +301,7 @@ namespace ParserLib.Json
 			return new JsonString(sb.ToString());
 		}
 
-		static JsonNumber ParseNumber(Control control)
+		static JsonNumber ParseNumber(ReadControl control)
 		{
 			var sb = new StringBuilder();
 			do
@@ -316,7 +314,7 @@ namespace ParserLib.Json
 			return new JsonNumber(double.Parse(sb.ToString(), CultureInfo.InvariantCulture));
 		}
 
-		static JsonBool ParseBool(Control control)
+		static JsonBool ParseBool(ReadControl control)
 		{
 			var result = new JsonBool();
 
@@ -345,7 +343,7 @@ namespace ParserLib.Json
 			return result;
 		}
 
-		static JsonNull ParseNull(Control control)
+		static JsonNull ParseNull(ReadControl control)
 		{
 			var sb = new StringBuilder();
 			do

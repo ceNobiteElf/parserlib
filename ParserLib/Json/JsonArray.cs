@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ParserLib.Json
 {
-	public sealed class JsonArray : JsonElement, IEnumerable, IEnumerable<JsonElement>, IList<JsonElement>
+	public sealed class JsonArray : JsonElement, IJsonRoot, IEnumerable, IEnumerable<JsonElement>, IList<JsonElement>
 	{
 		#region Properties
 		private IList<JsonElement> Values { get; set; }

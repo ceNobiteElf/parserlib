@@ -60,9 +60,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Json\Internal\Control.cs" />
-    <Compile Include="Json\Internal\FileControl.cs" />
-    <Compile Include="Json\Internal\StringControl.cs" />
+    <Compile Include="Json\Internal\FileWriteControl.cs" />
+    <Compile Include="Json\Internal\IControl.cs" />
+    <Compile Include="Json\Internal\ReadControl.cs" />
+    <Compile Include="Json\Internal\FileReadControl.cs" />
+    <Compile Include="Json\IJsonRoot.cs" />
+    <Compile Include="Json\Internal\StringReadControl.cs" />
+    <Compile Include="Json\Internal\StringWriteControl.cs" />
+    <Compile Include="Json\Internal\WriteControl.cs" />
     <Compile Include="Json\JsonArray.cs" />
     <Compile Include="Json\JsonBool.cs" />
     <Compile Include="Json\JsonElement.cs" />
@@ -70,7 +75,8 @@
     <Compile Include="Json\JsonObject.cs" />
     <Compile Include="Json\JsonString.cs" />
     <Compile Include="Json\JsonNull.cs" />
-    <Compile Include="Json\Parser.cs" />
+    <Compile Include="Json\JsonParser.cs" />
+    <Compile Include="Json\JsonWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

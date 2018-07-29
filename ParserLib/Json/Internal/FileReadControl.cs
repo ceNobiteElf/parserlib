@@ -2,10 +2,10 @@
 
 namespace ParserLib.Json.Internal
 {
-	internal sealed class FileControl : Control
+	internal sealed class FileReadControl : ReadControl
 	{
 		#region Constants
-		public const int DefaultBlockSize = 4096;
+		public const int DefaultBufferSize = 4096;
 		#endregion
 
 
@@ -15,7 +15,7 @@ namespace ParserLib.Json.Internal
 		public FileStream Stream { get; }
 		public StreamReader Reader { get; }
 
-		public int BlockSize { get; }
+		public int BufferSize { get; }
 		public char[] Buffer { get; }
 
 		public int BytesRead { get; private set; }
@@ -24,7 +24,7 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public FileControl(string filePath, int blockSize)
+		public FileReadControl(string filePath, int bufferSize)
 		{
 			var fileInfo = new FileInfo(filePath);
 
@@ -38,13 +38,13 @@ namespace ParserLib.Json.Internal
 			Stream = File.OpenRead(filePath);
 			Reader = new StreamReader(Stream);
 
-			BlockSize = blockSize > 0 ? blockSize : DefaultBlockSize;
-			Buffer = new char[blockSize];
+			BufferSize = bufferSize > 0 ? bufferSize : DefaultBufferSize;
+			Buffer = new char[bufferSize];
 		}
 		#endregion
 
 
-		#region Interface Implementation - IDisposable
+		#region Interface Implementation - IControl
 		public override void Dispose()
 		{
 			Reader.Dispose();
@@ -71,7 +71,7 @@ namespace ParserLib.Json.Internal
 
 		public int ReadBlock()
 		{
-			BytesRead = Reader.Read(Buffer, 0, BlockSize);
+			BytesRead = Reader.Read(Buffer, 0, BufferSize);
 
 			CurrentBufferPosition = 0;
 

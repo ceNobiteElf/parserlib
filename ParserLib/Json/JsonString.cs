@@ -66,7 +66,7 @@ namespace ParserLib.Json
 		public static implicit operator JsonString(string str)
 			=> new JsonString(str);
 
-		public static explicit operator string(JsonString obj)
+		public static implicit operator string(JsonString obj)
 			=> obj.Value;
 		#endregion
 	}

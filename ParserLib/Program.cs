@@ -9,7 +9,7 @@ namespace ParserLib
 	{
 		static void Main(string[] args)
 		{
-			/*JsonObject obj = Parser.ParseFile(@"D:\Libraries\Desktop\JsonTest\cars.json");
+			JsonObject obj = JsonParser.ParseFromFile<JsonObject>(@"D:\Libraries\Desktop\JsonTest\cars_test.json");
 
 			Console.WriteLine(obj.Count);
 
@@ -18,14 +18,23 @@ namespace ParserLib
 				Console.WriteLine($"{pair.Key} {pair.Value}");
 			}
 
-			Console.WriteLine(obj["cars"][1]["name"]);*/
+			Console.WriteLine(obj["cars"][1]["name"]);
 
-			JsonObject obj = Parser.ParseString("{ 'name' : 'Con' }");
+			/*var obj = JsonParser.ParseFromString<JsonObject>("{ 'name' : 'Con' }");
 
 			Console.WriteLine(obj.Count);
-			Console.WriteLine(obj["name"]);
+			Console.WriteLine(obj["name"]);*/
 
-			 Console.ReadKey();
+			/*var obj2 = JsonParser.ParseFromString<JsonArray>("[{ 'name' : 'Con' }, { 'name' : 'Kevin' }, { 'name' : 'Stab'}]");
+
+			Console.WriteLine(obj2.Count);
+			Console.WriteLine(obj2[0]["name"]);*/
+
+			Console.WriteLine(JsonWriter.WriteToString(obj, true));
+
+			JsonWriter.WriteToFile(@"D:\Libraries\Desktop\JsonTest\cars_test.json", obj, true);
+
+			Console.ReadKey();
 		}
 	}
 }

@@ -48,7 +48,7 @@ namespace ParserLib.Json
 		public static implicit operator JsonBool(bool value)
 			=> new JsonBool(value);
 
-		public static explicit operator bool(JsonBool obj)
+		public static implicit operator bool(JsonBool obj)
 			=> obj.Value;
 		#endregion
 	}

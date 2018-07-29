@@ -1,6 +1,6 @@
 ﻿namespace ParserLib.Json.Internal
 {
-	internal sealed class StringControl : Control
+	internal sealed class StringReadControl : ReadControl
 	{
 		#region Properties
 		public string RawJson { get; }
@@ -10,9 +10,9 @@
 
 
 		#region Constructors
-		public StringControl(string rawJson)
+		public StringReadControl(string rawJson)
 		{
-			RawJson = rawJson;
+			RawJson = rawJson ?? string.Empty;
 		}
 		#endregion
 

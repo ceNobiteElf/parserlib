@@ -2,7 +2,7 @@
 
 namespace ParserLib.Json
 {
-	public sealed class JsonNumber : JsonElement, IEquatable<JsonNumber>, IEquatable<double>
+	public sealed class JsonNumber : JsonElement, IEquatable<JsonNumber>, IEquatable<double>, IComparable<JsonNumber>, IComparable<double>
 	{
 		#region Properties
 		public double Value { get; set; }
@@ -21,7 +21,7 @@ namespace ParserLib.Json
 
 
 		#region Interface Implementation - IEquatable<JsonNumber>
-		public bool Equals(JsonNumber other)	
+		public bool Equals(JsonNumber other)
 			=> other != null && Value.Equals(other.Value);
 		#endregion
 
@@ -29,6 +29,18 @@ namespace ParserLib.Json
 		#region Interface Implementation - IEquatable<double>
 		public bool Equals(double other)
 			=> Value.Equals(other);
+		#endregion
+
+
+		#region Interface Implementation - IComparable<JsonNumber>
+		public int CompareTo(JsonNumber other)
+			=> CompareTo(other.Value);
+		#endregion
+
+
+		#region Interface Implementation - IComparable<double>
+		public int CompareTo(double other)
+			=> Value.CompareTo(other);
 		#endregion
 
 

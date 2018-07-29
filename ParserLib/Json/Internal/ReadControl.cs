@@ -2,7 +2,7 @@
 
 namespace ParserLib.Json.Internal
 {
-	internal abstract class Control : IDisposable
+	internal abstract class ReadControl : IControl
 	{
 		#region Properties
 		public char CurrentCharacter { get; protected set; }
@@ -10,11 +10,11 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public Control() {}
+		public ReadControl() {}
 		#endregion
 
 
-		#region Interface Implementation - IDisposable
+		#region Interface Implementation - IControl
 		public virtual void Dispose() { }
 		#endregion
 

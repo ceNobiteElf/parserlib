@@ -1,16 +1,19 @@
-﻿using System;
-
-namespace ParserLib.Json.Internal
+﻿namespace ParserLib.Json.Internal
 {
 	internal abstract class ReadControl : IControl
 	{
 		#region Properties
+		protected ReaderOptions Options { get; }
+
 		public char CurrentCharacter { get; protected set; }
 		#endregion
 
 
 		#region Constructors
-		public ReadControl() {}
+		public ReadControl(ReaderOptions options)
+		{
+			Options = options ?? new ReaderOptions();
+		}
 		#endregion
 
 

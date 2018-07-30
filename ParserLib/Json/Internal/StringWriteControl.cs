@@ -13,8 +13,8 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public StringWriteControl(bool prettyPrint, string newLine)
-			: base(prettyPrint, newLine)
+		public StringWriteControl(WriterOptions options)
+			: base(options)
 		{
 			Builder = new StringBuilder();
 		}

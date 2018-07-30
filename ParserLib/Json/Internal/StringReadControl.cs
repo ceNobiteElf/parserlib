@@ -11,6 +11,7 @@
 
 		#region Constructors
 		public StringReadControl(string rawJson)
+			: base(null)
 		{
 			RawJson = rawJson ?? string.Empty;
 		}

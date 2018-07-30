@@ -38,12 +38,15 @@ namespace ParserLib.Json
 
 
 		#region Public API
-		public static void WriteToFile<T>(string filePath, T json, bool prettyPrint = false) where T : JsonElement, IJsonRoot
-			=> WriteToFile(filePath, json, prettyPrint, Environment.NewLine);
+		public static void WriteToFile<T>(string filePath, T json) where T : JsonElement, IJsonRoot
+			=> WriteToFile(filePath, json, null);
 
-		public static void WriteToFile<T>(string filePath, T json, bool prettyPrint, string newLine) where T : JsonElement, IJsonRoot
+		public static void WriteToFile<T>(string filePath, T json, bool prettyPrint) where T : JsonElement, IJsonRoot
+			=> WriteToFile(filePath, json, new WriterOptions { PrettyPrint = prettyPrint });
+
+		public static void WriteToFile<T>(string filePath, T json, WriterOptions options) where T : JsonElement, IJsonRoot
 		{
-			var control = new FileWriteControl(filePath, prettyPrint, newLine);
+			var control = new FileWriteControl(filePath, options);
 
 			try
 			{
@@ -55,12 +58,15 @@ namespace ParserLib.Json
 			}
 		}
 
-		public static string WriteToString<T>(T json, bool prettyPrint = false) where T : JsonElement, IJsonRoot
-			=> WriteToString(json, prettyPrint, Environment.NewLine);
+		public static string WriteToString<T>(T json) where T : JsonElement, IJsonRoot
+			=> WriteToString(json, null);
 
-		public static string WriteToString<T>(T json, bool prettyPrint, string newLine) where T : JsonElement, IJsonRoot
+		public static string WriteToString<T>(T json, bool prettyPrint) where T : JsonElement, IJsonRoot
+			=> WriteToString(json, new WriterOptions { PrettyPrint = prettyPrint });
+
+		public static string WriteToString<T>(T json, WriterOptions options) where T : JsonElement, IJsonRoot
 		{
-			var control = new StringWriteControl(prettyPrint, newLine);
+			var control = new StringWriteControl(options);
 
 			try
 			{
@@ -178,9 +184,9 @@ namespace ParserLib.Json
 					{
 						value.Append(sequence);
 					}
-					else if (c < 0x20 || (true && 0x7E < c)) //TODO replace true with a variable to determine whether we should force ascii or not
+					else if (c < 0x20 || (control.ForceAscii && 0x7E < c))
 					{
-						value.Append($"\\u{((ushort)c).ToString("x4")}");
+						value.Append($"\\u{((UInt16)c).ToString("x4")}");
 					}
 					else
 					{

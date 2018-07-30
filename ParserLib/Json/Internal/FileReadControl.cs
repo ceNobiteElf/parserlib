@@ -1,21 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace ParserLib.Json.Internal
 {
 	internal sealed class FileReadControl : ReadControl
 	{
-		#region Constants
-		public const int DefaultBufferSize = 4096;
-		#endregion
-
-
 		#region Properties
 		public string FilePath { get; } 
 
 		public FileStream Stream { get; }
 		public StreamReader Reader { get; }
 
-		public int BufferSize { get; }
 		public char[] Buffer { get; }
 
 		public int BytesRead { get; private set; }
@@ -24,7 +19,8 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public FileReadControl(string filePath, int bufferSize)
+		public FileReadControl(string filePath, ReaderOptions options)
+			: base (options)
 		{
 			var fileInfo = new FileInfo(filePath);
 
@@ -36,10 +32,16 @@ namespace ParserLib.Json.Internal
 			FilePath = fileInfo.FullName;
 
 			Stream = File.OpenRead(filePath);
-			Reader = new StreamReader(Stream);
+			Reader = Options.FileEncoding != null ? new StreamReader(Stream, Options.FileEncoding) : new StreamReader(Stream, true);
 
-			BufferSize = bufferSize > 0 ? bufferSize : DefaultBufferSize;
-			Buffer = new char[bufferSize];
+			if (Options.BufferSize > 0)
+			{
+				Buffer = new char[Options.BufferSize];
+			}
+			else
+			{
+				throw new ArgumentOutOfRangeException(nameof(Options.BufferSize), "Buffer size must be a value greater than zero.");
+			}
 		}
 		#endregion
 

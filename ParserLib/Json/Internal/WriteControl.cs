@@ -1,11 +1,11 @@
-﻿using System;
-
-namespace ParserLib.Json.Internal
+﻿namespace ParserLib.Json.Internal
 {
 	internal abstract class WriteControl : IControl
 	{
 		#region Properties
-		public bool PrettyPrint { get; }
+		protected WriterOptions Options { get; }
+
+		public bool ForceAscii { get => Options.ForceAscii; }
 
 		public int IndentationLevel
 		{
@@ -17,10 +17,7 @@ namespace ParserLib.Json.Internal
 			}
 		}
 
-		public int TabWidth { get; }
 		public string Indentation { get; private set; }
-
-		public string NewLine { get; }
 		#endregion
 
 
@@ -30,14 +27,11 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public WriteControl(bool prettyPrint, string newLine)
+		public WriteControl(WriterOptions options)
 		{
-			PrettyPrint = prettyPrint;
+			Options = options ?? new WriterOptions();
 
-			TabWidth = 2;
-			Indentation = string.Empty;
-
-			NewLine = newLine;
+			IndentationLevel = 0;
 		}
 		#endregion
 
@@ -49,7 +43,7 @@ namespace ParserLib.Json.Internal
 
 		#region Public API
 		public string GetIndentation(int level)
-			=> level > 0 ? new String(' ', level * TabWidth) : string.Empty;
+			=> level > 0 ? (Options.UseTabCharacter ? new string('\t', level) : new string(' ', level * Options.TabWidth)) : string.Empty;
 
 		public void Indent()
 			=> ++IndentationLevel;
@@ -59,7 +53,7 @@ namespace ParserLib.Json.Internal
 
 		public void WriteIndentation()
 		{
-			if (PrettyPrint) 
+			if (Options.PrettyPrint) 
 			{
 				Write(Indentation);
 			}
@@ -68,13 +62,13 @@ namespace ParserLib.Json.Internal
 		public abstract void Write(string value);
 
 		public void WriteLine()
-			=> Write(PrettyPrint ? NewLine : string.Empty);
+			=> WriteLine(string.Empty);
 
 		public void WriteLine(string value)
-			=> Write($"{value}{(PrettyPrint ? NewLine : string.Empty)}");
+			=> Write($"{value}{(Options.PrettyPrint ? Options.NewLine : string.Empty)}");
 
 		public void WriteWithSpace(string value)
-			=> Write($"{value}{(PrettyPrint ? " " : string.Empty)}");
+			=> Write($"{value}{(Options.PrettyPrint ? " " : string.Empty)}");
 		#endregion
 	}
 }

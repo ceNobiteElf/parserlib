@@ -28,12 +28,18 @@ namespace ParserLib.Json
 
 
 		#region Public API
-		public static T ParseFromFile<T>(string filePath, int bufferSize = FileReadControl.DefaultBufferSize) where T : JsonElement, IJsonRoot
-			=> (T)ParseFromFile(filePath, bufferSize);
+		public static T ParseFromFile<T>(string filePath) where T : JsonElement, IJsonRoot
+			=> (T)ParseFromFile(filePath, null);
 
-		public static JsonElement ParseFromFile(string filePath, int bufferSize = FileReadControl.DefaultBufferSize)
+		public static T ParseFromFile<T>(string filePath, ReaderOptions options) where T : JsonElement, IJsonRoot
+			=> (T)ParseFromFile(filePath, options);
+
+		public static JsonElement ParseFromFile(string filePath)
+			=> ParseFromFile(filePath, null);
+
+		public static JsonElement ParseFromFile(string filePath, ReaderOptions options)
 		{
-			var control = new FileReadControl(filePath, bufferSize);
+			var control = new FileReadControl(filePath, options);
 
 			try
 			{

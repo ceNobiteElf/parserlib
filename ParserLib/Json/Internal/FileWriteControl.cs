@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Text;
 
 namespace ParserLib.Json.Internal
 {
@@ -14,8 +13,8 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public FileWriteControl(string filePath, bool prettyPrint, string newLine)
-			: base(prettyPrint, newLine)
+		public FileWriteControl(string filePath, WriterOptions options)
+			: base(options)
 		{
 			var fileInfo = new FileInfo(filePath);
 
@@ -27,7 +26,7 @@ namespace ParserLib.Json.Internal
 			FilePath = fileInfo.FullName;
 
 			Stream = File.OpenWrite(filePath);
-			Writer = new StreamWriter(Stream, Encoding.UTF8);
+			Writer = new StreamWriter(Stream, options.FileEncoding, options.BufferSize);
 		}
 		#endregion
 

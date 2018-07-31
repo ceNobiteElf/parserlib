@@ -77,6 +77,8 @@
     <Compile Include="Json\JsonNull.cs" />
     <Compile Include="Json\JsonParser.cs" />
     <Compile Include="Json\JsonWriter.cs" />
+    <Compile Include="Json\ReaderOptions.cs" />
+    <Compile Include="Json\WriterOptions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

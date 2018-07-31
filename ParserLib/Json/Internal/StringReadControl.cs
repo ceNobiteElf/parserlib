@@ -10,8 +10,8 @@
 
 
 		#region Constructors
-		public StringReadControl(string rawJson)
-			: base(null)
+		public StringReadControl(string rawJson, ReaderOptions options)
+			: base(options)
 		{
 			RawJson = rawJson ?? string.Empty;
 		}

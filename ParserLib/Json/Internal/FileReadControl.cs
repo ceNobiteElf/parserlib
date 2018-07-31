@@ -73,7 +73,7 @@ namespace ParserLib.Json.Internal
 
 		public int ReadBlock()
 		{
-			BytesRead = Reader.Read(Buffer, 0, BufferSize);
+			BytesRead = Reader.Read(Buffer, 0, Buffer.Length);
 
 			CurrentBufferPosition = 0;
 

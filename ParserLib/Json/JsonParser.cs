@@ -10,63 +10,66 @@ namespace ParserLib.Json
 	public static class JsonParser
 	{
 		#region Properties
+		private static IDictionary<char, Func<ReadControl, JsonElement>> ParserLookup { get; }
+
 		private static IDictionary<char, char> EscapeSequenceLookup { get; }
+
+		private static IList<char> LiteralTerminators { get; }
 		#endregion
 
 
 		#region Constructors
 		static JsonParser()
 		{
+			ParserLookup = new Dictionary<char, Func<ReadControl, JsonElement>> {
+				{ '{',  ParseObject },
+				{ '[',  ParseArray },
+				{ '"',  ParseString },
+				{ '\'', ParseString },
+				{ 't',  ParseBool },
+				{ 'f',  ParseBool },
+				{ 'n',  ParseNull },
+			};
+
 			EscapeSequenceLookup = new Dictionary<char, char> {
 				{ '\'', '\'' }, { '"', '\"' }, { '\\', '\\' },
 				{ '/', '/' },   { 'a', '\a' }, { 'b', '\b' },
 				{ 'f', '\f' },  { 'n', '\n' }, { 'r', '\r' },
 				{ 't', '\t' },  { 'v', '\v' }
 			};
+
+			LiteralTerminators = new [] {':', ',', ']', '}', '\0'};
 		}
 		#endregion
 
 
-		#region Public API
+		#region Public API - From File
 		public static T ParseFromFile<T>(string filePath) where T : JsonElement, IJsonRoot
-			=> (T)ParseFromFile(filePath, null);
+			=> ParseFromFile(filePath, null) as T;
 
 		public static T ParseFromFile<T>(string filePath, ReaderOptions options) where T : JsonElement, IJsonRoot
-			=> (T)ParseFromFile(filePath, options);
+			=> ParseFromFile(filePath, options) as T;
 
 		public static JsonElement ParseFromFile(string filePath)
 			=> ParseFromFile(filePath, null);
 
 		public static JsonElement ParseFromFile(string filePath, ReaderOptions options)
-		{
-			var control = new FileReadControl(filePath, options);
+			=> Parse(new FileReadControl(filePath, options));
+		#endregion
 
-			try
-			{
-				return Parse(control);
-			}
-			finally
-			{
-				control.Dispose();
-			}
-		}
 
+		#region Public API - From String
 		public static T ParseFromString<T>(string rawJson) where T : JsonElement, IJsonRoot
-			=> (T)ParseFromString(rawJson);
+			=> ParseFromString(rawJson, null) as T;
+
+		public static T ParseFromString<T>(string rawJson, ReaderOptions options) where T : JsonElement, IJsonRoot
+			=> ParseFromString(rawJson, options) as T;
 
 		public static JsonElement ParseFromString(string rawJson)
-		{
-			var control = new StringReadControl(rawJson);
+			=> ParseFromString(rawJson, null);
 
-			try
-			{
-				return Parse(control);
-			}
-			finally
-			{
-				control.Dispose();
-			}
-		}
+		public static JsonElement ParseFromString(string rawJson, ReaderOptions options)
+			=> Parse(new StringReadControl(rawJson, options));
 		#endregion
 
 
@@ -75,109 +78,114 @@ namespace ParserLib.Json
 		{
 			JsonElement result = null;
 
-			while (control.ReadNextCharacter() != '\0')
+			try
 			{
-				if (control.CurrentCharacter == '{')
+				while (control.ReadNextCharacter() != '\0')
 				{
-					result = ParseObject(control);
+					if (control.CurrentCharacter == '{' || control.CurrentCharacter == '[')
+					{
+						if (result == null && ParserLookup.TryGetValue(control.CurrentCharacter, out Func<ReadControl, JsonElement> parser))
+						{
+							result = parser.Invoke(control);
+						}
+						else
+						{
+							throw new Exception();
+						}
+					}
 				}
-				else if (control.CurrentCharacter == '[')
+			}
+			catch (Exception ex)
+			{
+				if (control.NullOnExceptions)
 				{
-					result = ParseArray(control);
+					result = null;
 				}
+				else
+				{
+					Console.WriteLine(ex);
+					throw ex;
+				}
+			}
+			finally
+			{
+				control.Dispose();
 			}
 
 			return result;
 		}
 
+		static bool CanParseNumber(char currentCharacter)
+			=> char.IsNumber(currentCharacter) || currentCharacter == '-';
+
+		static bool IsEndOfLiteral(char currentCharacter)
+			=> char.IsWhiteSpace(currentCharacter) || LiteralTerminators.Contains(currentCharacter);
+
 		static JsonObject ParseObject(ReadControl control)
 		{
 			var obj = new JsonObject();
 
-			JsonString key = null;
-			JsonElement value = null;
-			bool valueAdded = false;
+			JsonString currentKey = null;
+			JsonElement currentValue = null;
+			bool pairAdded = false;
 
-			while (control.ReadNextCharacter() != '}')
+			do
 			{
-				switch (control.CurrentCharacter)
+				control.ReadNextCharacter();
+
+				if (ParserLookup.TryGetValue(control.CurrentCharacter, out Func<ReadControl, JsonElement> parser))
 				{
-					case '{':
-						value = ParseObject(control);
-						break;
-
-					case '\'':
-					case '"':
-						if (key == null)
-						{
-							key = ParseString(control);
-						}
-						else
-						{
-							value = ParseString(control);
-							valueAdded = false;
-						}
-						break;
-
-					case ':':
-						if (key == null)
-						{
+					currentValue = parser.Invoke(control);
+				}
+				else
+				{
+					switch (control.CurrentCharacter)
+					{
+						case '\0':
 							throw new Exception();
-						}
-						break;
 
-					case ',':
-						if (!valueAdded)
-						{
-							throw new Exception();
-						}
-						break;
+						case ':':
+							if (currentKey == null)
+							{
+								throw new Exception();
+							}
+							break;
 
-					case '\0':
-						throw new Exception();
+						case ',':
+							if (!pairAdded)
+							{
+								throw new Exception();
+							}
 
-					case '[':
-						value = ParseArray(control);
-						valueAdded = false;
-						break;
+							pairAdded = false;
+							break;
 
-					case 'T':
-					case 't':
-					case 'F':
-					case 'f':
-						value = ParseBool(control);
-						valueAdded = false;
-						break;
-
-					case 'N':
-					case 'n':
-						value = ParseNull(control);
-						valueAdded = false;
-						break;
-
-					default:
-						if (char.IsNumber(control.CurrentCharacter) || control.CurrentCharacter == '-')
-						{
-							value = ParseNumber(control);
-							valueAdded = false;
-						}
-						break;
+						default:
+							if (CanParseNumber(control.CurrentCharacter))
+							{
+								currentValue = ParseNumber(control);
+							}
+							break;
+					}
 				}
 
-				if (value != null)
+				if (currentValue != null)
 				{
-					obj.Add(key, value);
+					if (currentKey == null)
+					{
+						currentKey = currentValue as JsonString ?? throw new Exception();
+					}
+					else
+					{
+						obj[currentKey] = currentValue;
+						currentKey = null;
+						pairAdded = true;
+					}
 
-					key = null;
-					value = null;
-					valueAdded = true;
+					currentValue = null;
 				}
-			}
 
-			if (key != null && value != null)
-			{
-				obj.Add(key, value);
-			}
+			} while (control.CurrentCharacter != '}');
 
 			return obj;
 		}
@@ -186,87 +194,61 @@ namespace ParserLib.Json
 		{
 			JsonArray array = new JsonArray();
 
-			JsonElement value = null;
+			JsonElement currentValue = null;
 			bool valueAdded = false;
 
-			while (control.ReadNextCharacter() != ']')
+			do
 			{
-				switch (control.CurrentCharacter)
+				control.ReadNextCharacter();
+
+				if (ParserLookup.TryGetValue(control.CurrentCharacter, out Func<ReadControl, JsonElement> parser))
 				{
-					case '{':
-						value = ParseObject(control);
-						valueAdded = false;
-						break;
-
-					case '\'':
-					case '"':
-						value = ParseString(control);
-						valueAdded = false;
-						break;
-
-					case ':':
-						throw new Exception();
-
-					case ',':
-						if (!valueAdded)
-						{
+					currentValue = parser.Invoke(control);
+				}
+				else
+				{
+					switch (control.CurrentCharacter)
+					{
+						case '\0':
+						case ':':
 							throw new Exception();
-						}
-						break;
 
-					case '\0':
-						throw new Exception();
+						case ',':
+							if (!valueAdded)
+							{
+								throw new Exception();
+							}
 
-					case '[':
-						value = ParseArray(control);
-						valueAdded = false;
-						break;
-
-					case 'T':
-					case 't':
-					case 'F':
-					case 'f':
-						value = ParseBool(control);
-						valueAdded = false;
-						break;
-
-					case 'N':
-					case 'n':
-						value = ParseNull(control);
-						valueAdded = false;
-						break;
-
-					default:
-						if (char.IsNumber(control.CurrentCharacter) || control.CurrentCharacter == '-')
-						{
-							value = ParseNumber(control);
 							valueAdded = false;
-						}
-						break;
+							break;
+
+						default:
+							if (CanParseNumber(control.CurrentCharacter))
+							{
+								currentValue = ParseNumber(control);
+							}
+							break;
+					}
 				}
 
-				if (value != null)
+				if (currentValue != null)
 				{
-					array.Add(value);
+					array.Add(currentValue);
 
-					value = null;
+					currentValue = null;
 					valueAdded = true;
 				}
-			}
 
-			if (value != null)
-			{
-				array.Add(value);
-			}
+			} while (control.CurrentCharacter != ']');
 
 			return array;
 		}
 
 		static JsonString ParseString(ReadControl control)
 		{
-			char enclosingChar = control.CurrentCharacter;
+			var value = new StringBuilder();
 
-			var sb = new StringBuilder();
+			char enclosingChar = control.CurrentCharacter;
 
 			while (control.ReadNextCharacter() != enclosingChar)
 			{
@@ -288,7 +270,7 @@ namespace ParserLib.Json
 								unicodeHex.Append(control.ReadNextCharacter());
 							}
 
-							escapedChar = (char)int.Parse(unicodeHex.ToString(), NumberStyles.AllowHexSpecifier);
+							escapedChar = (char)UInt16.Parse(unicodeHex.ToString(), NumberStyles.AllowHexSpecifier);
 						}
 						else
 						{
@@ -296,43 +278,41 @@ namespace ParserLib.Json
 						}
 					}
 
-					sb.Append(escapedChar);
+					value.Append(escapedChar);
 				}
 				else
 				{
-					sb.Append(control.CurrentCharacter);
+					value.Append(control.CurrentCharacter);
 				}
 			}
 
-			return new JsonString(sb.ToString());
+			return new JsonString(value.ToString());
 		}
 
 		static JsonNumber ParseNumber(ReadControl control)
 		{
-			var sb = new StringBuilder();
+			var value = new StringBuilder();
+
 			do
 			{
-				sb.Append(control.CurrentCharacter);
+				value.Append(control.CurrentCharacter);
+			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
 
-				control.ReadNextCharacter();
-			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != ',' && control.CurrentCharacter != '}');
-
-			return new JsonNumber(double.Parse(sb.ToString(), CultureInfo.InvariantCulture));
+			return new JsonNumber(double.Parse(value.ToString(), CultureInfo.InvariantCulture));
 		}
 
 		static JsonBool ParseBool(ReadControl control)
 		{
 			var result = new JsonBool();
 
-			var sb = new StringBuilder();
+			var value = new StringBuilder();
+
 			do
 			{
-				sb.Append(control.CurrentCharacter);
+				value.Append(control.CurrentCharacter);
+			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
 
-				control.ReadNextCharacter();
-			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != ',' && control.CurrentCharacter != '}');
-
-			switch (sb.ToString().ToLowerInvariant())
+			switch (value.ToString())
 			{
 				case "true":
 					result.Value = true;
@@ -351,15 +331,14 @@ namespace ParserLib.Json
 
 		static JsonNull ParseNull(ReadControl control)
 		{
-			var sb = new StringBuilder();
+			var value = new StringBuilder();
+
 			do
 			{
-				sb.Append(control.CurrentCharacter);
+				value.Append(control.CurrentCharacter);
+			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
 
-				control.ReadNextCharacter();
-			} while (!char.IsWhiteSpace(control.CurrentCharacter) && control.CurrentCharacter != ',' && control.CurrentCharacter != '}');
-
-			if (!sb.ToString().ToLowerInvariant().Equals("null"))
+			if (!value.ToString().ToLowerInvariant().Equals("null"))
 			{
 				throw new Exception();
 			}

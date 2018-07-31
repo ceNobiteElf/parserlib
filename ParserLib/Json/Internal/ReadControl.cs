@@ -5,6 +5,8 @@
 		#region Properties
 		protected ReaderOptions Options { get; }
 
+		public bool NullOnExceptions { get => Options.NullOnExceptions; }
+
 		public char CurrentCharacter { get; protected set; }
 		#endregion
 

@@ -6,6 +6,8 @@
 		protected ReaderOptions Options { get; }
 
 		public bool NullOnExceptions { get => Options.NullOnExceptions; }
+		public DuplicateKeyBehaviour DuplicateKeyBehaviour { get => Options.DuplicateKeyBehaviour; }
+		public MultipleRootsBehaviour MultipleRootsBehaviour { get => Options.MultipleRootsBehaviour; }
 
 		public char CurrentCharacter { get; protected set; }
 		#endregion

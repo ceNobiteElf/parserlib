@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
+using ParserLib.Json.Exceptions;
 using ParserLib.Json.Internal;
 
 namespace ParserLib.Json
@@ -84,13 +85,15 @@ namespace ParserLib.Json
 				{
 					if (control.CurrentCharacter == '{' || control.CurrentCharacter == '[')
 					{
-						if (result == null && ParserLookup.TryGetValue(control.CurrentCharacter, out Func<ReadControl, JsonElement> parser))
-						{
+						Func<ReadControl, JsonElement> parser = ParserLookup[control.CurrentCharacter];
+
+						if (result == null)
+						{	
 							result = parser.Invoke(control);
 						}
-						else
+						else if (control.MultipleRootsBehaviour == MultipleRootsBehaviour.ThrowException)
 						{
-							throw new Exception();
+							throw new MultipleRootsException();
 						}
 					}
 				}
@@ -103,7 +106,6 @@ namespace ParserLib.Json
 				}
 				else
 				{
-					Console.WriteLine(ex);
 					throw ex;
 				}
 			}
@@ -142,19 +144,19 @@ namespace ParserLib.Json
 					switch (control.CurrentCharacter)
 					{
 						case '\0':
-							throw new Exception();
+							throw new UnexpectedEndException();
 
 						case ':':
 							if (currentKey == null)
 							{
-								throw new Exception();
+								throw new UnexpectedTokenException();
 							}
 							break;
 
 						case ',':
 							if (!pairAdded)
 							{
-								throw new Exception();
+								throw new UnexpectedTokenException();
 							}
 
 							pairAdded = false;
@@ -173,11 +175,32 @@ namespace ParserLib.Json
 				{
 					if (currentKey == null)
 					{
-						currentKey = currentValue as JsonString ?? throw new Exception();
+						currentKey = currentValue as JsonString ?? throw new InvalidKeyException();
 					}
 					else
 					{
-						obj[currentKey] = currentValue;
+						if (obj.ContainsKey(currentKey))
+						{
+							switch (control.DuplicateKeyBehaviour)
+							{
+								case DuplicateKeyBehaviour.Overwrite:
+									obj[currentKey] = currentValue;
+								break;
+
+								case DuplicateKeyBehaviour.Ignore:
+									// We do nothing, as the value for the key will remain unchanged.
+									break;
+
+								case DuplicateKeyBehaviour.ThrowException:
+								default:
+									throw new DuplicateKeyException(currentKey);
+							}
+						}
+						else
+						{
+							obj.Add(currentKey, currentValue);
+						}
+
 						currentKey = null;
 						pairAdded = true;
 					}
@@ -210,13 +233,15 @@ namespace ParserLib.Json
 					switch (control.CurrentCharacter)
 					{
 						case '\0':
+							throw new UnexpectedEndException();
+
 						case ':':
-							throw new Exception();
+							throw new UnexpectedTokenException();
 
 						case ',':
 							if (!valueAdded)
 							{
-								throw new Exception();
+								throw new UnexpectedTokenException();
 							}
 
 							valueAdded = false;
@@ -252,14 +277,17 @@ namespace ParserLib.Json
 
 			while (control.ReadNextCharacter() != enclosingChar)
 			{
-				if (control.CurrentCharacter == '\\')
+				if (control.CurrentCharacter == '\0')
+				{
+					throw new UnexpectedEndException();
+				}
+				else if (control.CurrentCharacter == '\\')
 				{
 					control.ReadNextCharacter();
 
 					char escapedChar;
-					EscapeSequenceLookup.TryGetValue(control.CurrentCharacter, out escapedChar);
 
-					if (escapedChar == '\0')
+					if (!EscapeSequenceLookup.TryGetValue(control.CurrentCharacter, out escapedChar))
 					{
 						if (control.CurrentCharacter == 'u')
 						{
@@ -274,7 +302,7 @@ namespace ParserLib.Json
 						}
 						else
 						{
-							throw new Exception();
+							throw new InvalidEscapeSequenceException($"\\{control.CurrentCharacter}");
 						}
 					}
 
@@ -298,13 +326,18 @@ namespace ParserLib.Json
 				value.Append(control.CurrentCharacter);
 			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
 
-			return new JsonNumber(double.Parse(value.ToString(), CultureInfo.InvariantCulture));
+			string rawValue = value.ToString();
+
+			if (double.TryParse(rawValue, NumberStyles.Float, CultureInfo.InvariantCulture, out double result))
+			{
+				return new JsonNumber(result);
+			}
+
+			throw new ValueParseException(rawValue, typeof(JsonNumber));
 		}
 
 		static JsonBool ParseBool(ReadControl control)
 		{
-			var result = new JsonBool();
-
 			var value = new StringBuilder();
 
 			do
@@ -312,21 +345,19 @@ namespace ParserLib.Json
 				value.Append(control.CurrentCharacter);
 			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
 
-			switch (value.ToString())
+			string rawValue = value.ToString();
+
+			switch (rawValue)
 			{
 				case "true":
-					result.Value = true;
-					break;
+					return true;
 
 				case "false":
-					result.Value = false;
-					break;
+					return false;
 
 				default:
-					throw new Exception();
+					throw new ValueParseException(rawValue, typeof(JsonBool));
 			}
-
-			return result;
 		}
 
 		static JsonNull ParseNull(ReadControl control)
@@ -338,12 +369,14 @@ namespace ParserLib.Json
 				value.Append(control.CurrentCharacter);
 			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
 
-			if (!value.ToString().ToLowerInvariant().Equals("null"))
+			string rawValue = value.ToString();
+
+			if (rawValue.Equals("null"))
 			{
-				throw new Exception();
+				return JsonNull.Instance;
 			}
 
-			return JsonNull.Instance;
+			throw new ValueParseException(rawValue, typeof(JsonNull));
 		}
 		#endregion
 	}

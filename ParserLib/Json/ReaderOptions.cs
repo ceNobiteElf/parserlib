@@ -11,6 +11,16 @@ namespace ParserLib.Json
 		public bool NullOnExceptions { get; set; }
 
 		/// <summary>
+		/// This will determine the behaviour of the parser if multiple root elements are detected. By default an exception will be raised.
+		/// </summary>
+		public MultipleRootsBehaviour MultipleRootsBehaviour { get; set; }
+
+		/// <summary>
+		/// This determines the behaviour of the parser when a duplicate key is found within a JSON object. By default an exception will be raised.
+		/// </summary>
+		public DuplicateKeyBehaviour DuplicateKeyBehaviour { get; set; }
+
+		/// <summary>
 		/// The encoding to use when reading from file. This defaults to UTF8, but can be set to <c>null</c> to tell the reader to try to detect the encoding automatically.
 		/// </summary>
 		public Encoding FileEncoding { get; set; }
@@ -26,6 +36,9 @@ namespace ParserLib.Json
 		public ReaderOptions()
 		{
 			NullOnExceptions = false;
+
+			MultipleRootsBehaviour = MultipleRootsBehaviour.ThrowException;
+			DuplicateKeyBehaviour = DuplicateKeyBehaviour.ThrowException;
 
 			FileEncoding = Encoding.UTF8;
 			BufferSize = 1024;

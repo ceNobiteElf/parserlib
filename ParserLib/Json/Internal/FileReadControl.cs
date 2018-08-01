@@ -11,10 +11,10 @@ namespace ParserLib.Json.Internal
 		public FileStream Stream { get; }
 		public StreamReader Reader { get; }
 
-		public char[] Buffer { get; }
+		private int BytesRead { get; set; }
 
-		public int BytesRead { get; private set; }
-		public int CurrentBufferPosition { get; private set; }
+		private char[] Buffer { get; }
+		private int CurrentBufferPosition { get; set; }
 		#endregion
 
 

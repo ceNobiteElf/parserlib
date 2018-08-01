@@ -60,6 +60,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Json\DuplicateKeyBehaviour.cs" />
+    <Compile Include="Json\Exceptions\DuplicateKeyException.cs" />
+    <Compile Include="Json\Exceptions\InvalidEscapeSequenceException.cs" />
+    <Compile Include="Json\Exceptions\MultipleRootsException.cs" />
+    <Compile Include="Json\Exceptions\UnexpectedEndException.cs" />
+    <Compile Include="Json\Exceptions\ValueParseException.cs" />
     <Compile Include="Json\Internal\FileWriteControl.cs" />
     <Compile Include="Json\Internal\IControl.cs" />
     <Compile Include="Json\Internal\ReadControl.cs" />
@@ -68,16 +74,20 @@
     <Compile Include="Json\Internal\StringReadControl.cs" />
     <Compile Include="Json\Internal\StringWriteControl.cs" />
     <Compile Include="Json\Internal\WriteControl.cs" />
+    <Compile Include="Json\Exceptions\InvalidKeyException.cs" />
     <Compile Include="Json\JsonArray.cs" />
     <Compile Include="Json\JsonBool.cs" />
     <Compile Include="Json\JsonElement.cs" />
+    <Compile Include="Json\JsonException.cs" />
     <Compile Include="Json\JsonNumber.cs" />
     <Compile Include="Json\JsonObject.cs" />
     <Compile Include="Json\JsonString.cs" />
     <Compile Include="Json\JsonNull.cs" />
     <Compile Include="Json\JsonParser.cs" />
     <Compile Include="Json\JsonWriter.cs" />
+    <Compile Include="Json\MultipleRootsBehaviour.cs" />
     <Compile Include="Json\ReaderOptions.cs" />
+    <Compile Include="Json\Exceptions\UnexpectedTokenException.cs" />
     <Compile Include="Json\WriterOptions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

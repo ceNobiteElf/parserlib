@@ -92,7 +92,6 @@
     <Compile Include="Json\ReaderOptions.cs" />
     <Compile Include="Json\Exceptions\UnexpectedTokenException.cs" />
     <Compile Include="Json\WriterOptions.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

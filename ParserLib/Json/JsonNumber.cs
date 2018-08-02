@@ -68,10 +68,7 @@ namespace ParserLib.Json
 
 		public static implicit operator double(JsonNumber obj)
 			=> obj.Value;
-		#endregion
 
-
-		#region Operator Overloads - Equality Operators (JsonNumber, JsonNumber)
 		public static bool operator ==(JsonNumber lhs, JsonNumber rhs)
 			=> lhs?.Value == rhs?.Value;
 
@@ -88,48 +85,6 @@ namespace ParserLib.Json
 			=> lhs == rhs || lhs > rhs;
 
 		public static bool operator <=(JsonNumber lhs, JsonNumber rhs)
-			=> lhs == rhs || lhs < rhs;
-		#endregion
-
-
-		#region Operator Overloads - Equality Operators (JsonNumber, double)
-		public static bool operator ==(JsonNumber lhs, double rhs)
-			=> lhs?.Value == rhs;
-
-		public static bool operator !=(JsonNumber lhs, double rhs)
-			=> lhs?.Value != rhs;
-
-		public static bool operator >(JsonNumber lhs, double rhs)
-			=> lhs?.Value > rhs;
-
-		public static bool operator <(JsonNumber lhs, double rhs)
-			=> lhs?.Value < rhs;
-
-		public static bool operator >=(JsonNumber lhs, double rhs)
-			=> lhs == rhs || lhs > rhs;
-
-		public static bool operator <=(JsonNumber lhs, double rhs)
-			=> lhs == rhs || lhs < rhs;
-		#endregion
-
-
-		#region Operator Overloads - Equality Operators (double, JsonNumber)
-		public static bool operator ==(double lhs, JsonNumber rhs)
-			=> lhs == rhs?.Value;
-
-		public static bool operator !=(double lhs, JsonNumber rhs)
-			=> lhs != rhs?.Value;
-
-		public static bool operator >(double lhs, JsonNumber rhs)
-			=> lhs > rhs?.Value;
-
-		public static bool operator <(double lhs, JsonNumber rhs)
-			=> lhs < rhs?.Value;
-
-		public static bool operator >=(double lhs, JsonNumber rhs)
-			=> lhs == rhs || lhs > rhs;
-
-		public static bool operator <=(double lhs, JsonNumber rhs)
 			=> lhs == rhs || lhs < rhs;
 		#endregion
 

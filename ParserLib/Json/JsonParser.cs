@@ -98,7 +98,7 @@ namespace ParserLib.Json
 					}
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				if (control.NullOnExceptions)
 				{
@@ -106,7 +106,7 @@ namespace ParserLib.Json
 				}
 				else
 				{
-					throw ex;
+					throw;
 				}
 			}
 			finally

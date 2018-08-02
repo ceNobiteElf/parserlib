@@ -9,7 +9,7 @@ namespace ParserLibTests.Json
 	public class ParserTests
 	{
 		#region Tests - General
-		[TestMethod, TestCategory("General"), ExpectedException(typeof(UnexpectedEndException))]
+		[TestMethod, TestCategory("JsonParser - General"), ExpectedException(typeof(UnexpectedEndException))]
 		public void ParseFromString_PartialJson_ThrowsException()
 		{
 			string jsonString = "{'name': 'Quarter', ";
@@ -17,8 +17,8 @@ namespace ParserLibTests.Json
 			JsonParser.ParseFromString(jsonString);
 		}
 
-		[TestMethod, TestCategory("General")]
-		public void ParseFromString_InvalidJson_ReturnsNull()
+		[TestMethod, TestCategory("JsonParser - General")]
+		public void ParseFromString_PartialJson_ReturnsNull()
 		{
 			string jsonString = "{'name': 'Quarter', ";
 
@@ -27,8 +27,8 @@ namespace ParserLibTests.Json
 			Assert.IsNull(result);
 		}
 
-		[TestMethod, TestCategory("General")]
-		public void ParseFromString_InvalidJson_ReturnsNullWithCast()
+		[TestMethod, TestCategory("JsonParser - General")]
+		public void ParseFromString_PartialJson_ReturnsNullWithCast()
 		{
 			string jsonString = "{'name': 'Quarter', ";
 
@@ -37,7 +37,7 @@ namespace ParserLibTests.Json
 			Assert.IsNull(result);
 		}
 
-		[TestMethod, TestCategory("General"), ExpectedException(typeof(MultipleRootsException))]
+		[TestMethod, TestCategory("JsonParser - General"), ExpectedException(typeof(MultipleRootsException))]
 		public void ParseFromString_InvalidJson_MultipleRootsThrowsException()
 		{
 			string jsonString = "['first'] ['second']";
@@ -45,7 +45,7 @@ namespace ParserLibTests.Json
 			JsonParser.ParseFromString(jsonString, new ReaderOptions { MultipleRootsBehaviour = MultipleRootsBehaviour.ThrowException });
 		}
 
-		[TestMethod, TestCategory("General")]
+		[TestMethod, TestCategory("JsonParser - General")]
 		public void ParseFromString_InvalidJson_MultipleRootsReturnsFirst()
 		{
 			string jsonString = "['first'] ['second']";
@@ -59,7 +59,7 @@ namespace ParserLibTests.Json
 
 
 		#region Tests - JsonObject
-		[TestMethod, TestCategory("JsonObject")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonObject")]
 		public void ParseFromString_ValidJsonObject_DifferentTypes()
 		{
 			string jsonString = "{'name': 'Quarter', 'surname': 'Century', 'occupation': 'Developer', 'age': 25, 'height': 181.5, 'married': false, 'hasCat': true, 'children': [], 'lastKnownMeal': null}";
@@ -78,7 +78,7 @@ namespace ParserLibTests.Json
 			Assert.IsInstanceOfType(result["lastKnownMeal"], typeof(JsonNull));
 		}
 
-		[TestMethod, TestCategory("JsonObject"), ExpectedException(typeof(DuplicateKeyException))]
+		[TestMethod, TestCategory("JsonParser - Parse JsonObject"), ExpectedException(typeof(DuplicateKeyException))]
 		public void ParseFromString_InvalidJsonObject_DuplicateKeysThrowsException()
 		{
 			string jsonString = "{'name': 'First', 'name': 'Second'}";
@@ -86,7 +86,7 @@ namespace ParserLibTests.Json
 			JsonParser.ParseFromString(jsonString, new ReaderOptions { DuplicateKeyBehaviour = DuplicateKeyBehaviour.ThrowException });
 		}
 
-		[TestMethod, TestCategory("JsonObject")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonObject")]
 		public void ParseFromString_InvalidJsonObject_DuplicateKeysIgnore()
 		{
 			string jsonString = "{'name': 'First', 'name': 'Second'}";
@@ -97,7 +97,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual("First", (string)result["name"]);
 		}
 
-		[TestMethod, TestCategory("JsonObject")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonObject")]
 		public void ParseFromString_InvalidJsonObject_DuplicateKeysOverwrite()
 		{
 			string jsonString = "{'name': 'First', 'name': 'Second'}";
@@ -108,7 +108,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual("Second", (string)result["name"]);
 		}
 
-		[TestMethod, TestCategory("JsonObject"), ExpectedException(typeof(UnexpectedTokenException))]
+		[TestMethod, TestCategory("JsonParser - Parse JsonObject"), ExpectedException(typeof(UnexpectedTokenException))]
 		public void ParseFromString_MalformedJsonObject_ThrowsException()
 		{
 			string jsonString = "{'name', 'Quarter': 'surname', 'Century'}";
@@ -119,7 +119,7 @@ namespace ParserLibTests.Json
 
 
 		#region Tests - JsonArray
-		[TestMethod, TestCategory("JsonArray")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonArray")]
 		public void ParseFromString_ValidJsonArray_CorrectValues()
 		{
 			string jsonString = "[{'name': 'Con', 'occupation': 'Developer'}, {'name': 'Kirsten', 'occupation': 'Programmer'}, {'name' : 'Robin', 'occupation': 'Engineer'}]";
@@ -130,7 +130,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual("Engineer", (string)result[2]["occupation"]);
 		}
 
-		[TestMethod, TestCategory("JsonArray"), ExpectedException(typeof(UnexpectedTokenException))]
+		[TestMethod, TestCategory("JsonParser - Parse JsonArray"), ExpectedException(typeof(UnexpectedTokenException))]
 		public void ParseFromString_MalformedJsonArray_ThrowsException()
 		{
 			string jsonString = "['1st'; '2nd': '3rd', null]";
@@ -141,7 +141,7 @@ namespace ParserLibTests.Json
 
 
 		#region Tests - JsonString
-		[TestMethod, TestCategory("JsonString")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonString")]
 		public void ParseFromString_ValidJsonString_SingleQuotes()
 		{
 			string jsonString = "{'name': 'Stabbins'}";
@@ -152,7 +152,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual("Stabbins", (string)result["name"]);
 		}
 
-		[TestMethod, TestCategory("JsonString")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonString")]
 		public void ParseFromString_ValidJsonString_DoubleQuotes()
 		{
 			string jsonString = "{'name': 'Stabbins'}";
@@ -163,7 +163,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual("Stabbins", (string)result["name"]);
 		}
 
-		[TestMethod, TestCategory("JsonString"), ExpectedException(typeof(JsonException), AllowDerivedTypes = true)]
+		[TestMethod, TestCategory("JsonParser - Parse JsonString"), ExpectedException(typeof(JsonException), AllowDerivedTypes = true)]
 		public void ParseFromString_MalformedJsonString_ThrowsException()
 		{
 			string jsonString = "{'name': \"Stabbins'}";
@@ -171,7 +171,7 @@ namespace ParserLibTests.Json
 			JsonParser.ParseFromString(jsonString);
 		}
 
-		[TestMethod, TestCategory("JsonString")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonString")]
 		public void ParseFromString_ValidJsonString_ValidEscapeSequences()
 		{
 			string jsonString = "{'text': '\\t\\n\\''}";
@@ -182,7 +182,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual("\t\n\'", (string)result["text"]);
 		}
 
-		[TestMethod, TestCategory("JsonString"), ExpectedException(typeof(InvalidEscapeSequenceException))]
+		[TestMethod, TestCategory("JsonParser - Parse JsonString"), ExpectedException(typeof(InvalidEscapeSequenceException))]
 		public void ParseFromString_ValidJsonString_InvalidEscapeSequenceThrowsException()
 		{
 			string jsonString = "{'text': '\\g'}";
@@ -193,7 +193,7 @@ namespace ParserLibTests.Json
 
 
 		#region Tests - JsonNumber
-		[TestMethod, TestCategory("JsonNumber")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonNumber")]
 		public void ParseFromString_ValidJsonNumber_PositiveNumbers()
 		{
 			string jsonString = "[1, 2.2, 3.14159, 42, 1337]";
@@ -208,7 +208,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual(1337, (double)result[4]);
 		}
 
-		[TestMethod, TestCategory("JsonNumber")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonNumber")]
 		public void ParseFromString_ValidJsonNumber_NegativeNumbers()
 		{
 			string jsonString = "[-1, -2.2, -3.14159, -42, -1337]";
@@ -223,7 +223,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual(-1337, (double)result[4]);
 		}
 
-		[TestMethod, TestCategory("JsonNumber")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonNumber")]
 		public void ParseFromString_ValidJsonNumber_Exponents()
 		{
 			string jsonString = "[1e10, 2E10, 3e-10, 4E-10]";
@@ -237,7 +237,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual(4E-10, (double)result[3]);
 		}
 
-		[TestMethod, TestCategory("JsonNumber"), ExpectedException(typeof(ValueParseException))]
+		[TestMethod, TestCategory("JsonParser - Parse JsonNumber"), ExpectedException(typeof(ValueParseException))]
 		public void ParseFromString_InvalidJsonNumber_ThrowsException()
 		{
 			string jsonString = "[12l, 13d, 44e10.5]";
@@ -248,7 +248,7 @@ namespace ParserLibTests.Json
 
 
 		#region Tests - JsonBool
-		[TestMethod, TestCategory("JsonBool")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonBool")]
 		public void ParseFromString_ValidJsonBool_True()
 		{
 			string jsonString = "{'isValid': true}";
@@ -259,7 +259,7 @@ namespace ParserLibTests.Json
 			Assert.IsTrue((bool)result["isValid"]);
 		}
 
-		[TestMethod, TestCategory("JsonBool")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonBool")]
 		public void ParseFromString_ValidJsonBool_False()
 		{
 			string jsonString = "{'isValid': false}";
@@ -270,7 +270,7 @@ namespace ParserLibTests.Json
 			Assert.IsFalse((bool)result["isValid"]);
 		}
 
-		[TestMethod, TestCategory("JsonBool"), ExpectedException(typeof(ValueParseException))]
+		[TestMethod, TestCategory("JsonParser - Parse JsonBool"), ExpectedException(typeof(ValueParseException))]
 		public void ParseFromString_InvalidJsonBool_ThrowsException()
 		{
 			string jsonString = "{'isValid': truestring}";
@@ -281,7 +281,7 @@ namespace ParserLibTests.Json
 
 
 		#region Tests - JsonNull
-		[TestMethod, TestCategory("JsonNull")]
+		[TestMethod, TestCategory("JsonParser - Parse JsonNull")]
 		public void ParseFromString_ValidJsonNull()
 		{
 			string jsonString = "{'null': null}";
@@ -292,7 +292,7 @@ namespace ParserLibTests.Json
 			Assert.AreEqual(JsonNull.Value, result["null"]);
 		}
 
-		[TestMethod, TestCategory("JsonNull"), ExpectedException(typeof(ValueParseException))]
+		[TestMethod, TestCategory("JsonParser - Parse JsonNull"), ExpectedException(typeof(ValueParseException))]
 		public void ParseFromString_InvalidJsonNull_ThrowsException()
 		{
 			string jsonString = "{'null': nullstring}";

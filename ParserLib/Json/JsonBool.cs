@@ -62,33 +62,12 @@ namespace ParserLib.Json
 
 		public static implicit operator bool(JsonBool obj)
 			=> obj.Value;
-		#endregion
 
-
-		#region Operator Overloads - Equality Operators (JsonString, JsonString)
 		public static bool operator ==(JsonBool lhs, JsonBool rhs)
 			=> lhs?.Value == rhs?.Value;
 
 		public static bool operator !=(JsonBool lhs, JsonBool rhs)
 			=> lhs?.Value != rhs?.Value;
-		#endregion
-
-
-		#region Operator Overloads - Equality Operators (JsonString, string)
-		public static bool operator ==(JsonBool lhs, bool rhs)
-			=> lhs?.Value == rhs;
-
-		public static bool operator !=(JsonBool lhs, bool rhs)
-			=> lhs?.Value == rhs;
-		#endregion
-
-
-		#region Operator Overloads - Equality Operators (JsonString, string)
-		public static bool operator ==(bool lhs, JsonBool rhs)
-			=> lhs == rhs?.Value;
-
-		public static bool operator !=(bool lhs, JsonBool rhs)
-			=> lhs != rhs?.Value;
 		#endregion
 	}
 }

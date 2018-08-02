@@ -289,7 +289,7 @@ namespace ParserLibTests.Json
 			var result = JsonParser.ParseFromString<JsonObject>(jsonString);
 
 			Assert.AreEqual(1, result.Count);
-			Assert.AreEqual(JsonNull.Instance, result["null"]);
+			Assert.AreEqual(JsonNull.Value, result["null"]);
 		}
 
 		[TestMethod, TestCategory("JsonNull"), ExpectedException(typeof(ValueParseException))]

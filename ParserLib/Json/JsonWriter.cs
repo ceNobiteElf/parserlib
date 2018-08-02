@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 using ParserLib.Json.Internal;
@@ -45,18 +46,7 @@ namespace ParserLib.Json
 			=> WriteToFile(filePath, json, new WriterOptions { PrettyPrint = prettyPrint });
 
 		public static void WriteToFile<T>(string filePath, T json, WriterOptions options) where T : JsonElement, IJsonRoot
-		{
-			var control = new FileWriteControl(filePath, options);
-
-			try
-			{
-				Write(control, json);
-			}
-			finally
-			{
-				control.Dispose();
-			}
-		}
+			=> Write(new FileWriteControl(filePath, options), json);
 
 		public static string WriteToString<T>(T json) where T : JsonElement, IJsonRoot
 			=> WriteToString(json, null);
@@ -68,14 +58,7 @@ namespace ParserLib.Json
 		{
 			var control = new StringWriteControl(options);
 
-			try
-			{
-				Write(control, json);
-			}
-			finally
-			{
-				control.Dispose();
-			}
+			Write(control, json);
 
 			return control.Result;
 		}
@@ -85,7 +68,28 @@ namespace ParserLib.Json
 		#region Helper Functions
 		static void Write(WriteControl control, JsonElement json)
 		{
-			if (WriterLookup.TryGetValue(json.GetType(), out Action<WriteControl, JsonElement> writer))
+			try
+			{
+				if (json == null)
+				{
+					throw new ArgumentNullException(nameof(json));
+				}
+
+				WriteElement(control, json);
+			}
+			finally
+			{
+				control.Dispose();
+			}
+		}
+
+		static void WriteElement(WriteControl control, JsonElement json)
+		{
+			if (json == null)
+			{
+				WriteNull(control, json); 
+			}
+			else if (WriterLookup.TryGetValue(json.GetType(), out Action<WriteControl, JsonElement> writer))
 			{
 				writer.Invoke(control, json);
 			}
@@ -122,10 +126,10 @@ namespace ParserLib.Json
 					}
 
 					control.WriteIndentation();
-					Write(control, pair.Key);
+					WriteElement(control, pair.Key);
 
 					control.WriteWithSpace(":");
-					Write(control, pair.Value);
+					WriteElement(control, pair.Value);
 				}
 
 				control.WriteLine();
@@ -151,14 +155,14 @@ namespace ParserLib.Json
 				control.Indent();
 
 				control.WriteIndentation();
-				Write(control, array[0]);
+				WriteElement(control, array[0]);
 
 				for (int i = 1; i < array.Count; ++i)
 				{
 					control.WriteLine(",");
 
 					control.WriteIndentation();
-					Write(control, array[i]);
+					WriteElement(control, array[i]);
 				}
 
 				control.WriteLine();
@@ -172,38 +176,29 @@ namespace ParserLib.Json
 
 		static void WriteString(WriteControl control, JsonElement json)
 		{
-			var str = (JsonString)json;
+			var value = new StringBuilder();
 
-			if (str.Value != null)
+			foreach (char c in (JsonString)json)
 			{
-				var value = new StringBuilder();
-
-				foreach (char c in str)
+				if (EscapeSequenceLookup.TryGetValue(c, out string sequence))
 				{
-					if (EscapeSequenceLookup.TryGetValue(c, out string sequence))
-					{
-						value.Append(sequence);
-					}
-					else if (c < 0x20 || (control.ForceAscii && 0x7E < c))
-					{
-						value.Append($"\\u{((UInt16)c).ToString("x4")}");
-					}
-					else
-					{
-						value.Append(c);
-					}
+					value.Append(sequence);
 				}
+				else if (c < 0x20 || (control.ForceAscii && 0x7E < c))
+				{
+					value.Append($"\\u{((UInt16)c).ToString("x4")}");
+				}
+				else
+				{
+					value.Append(c);
+				}
+			}
 
-				control.Write($"\"{value}\"");
-			}
-			else
-			{
-				WriteNull(control, json);
-			}
+			control.Write($"\"{value}\"");
 		}
 
 		static void WriteNumber(WriteControl control, JsonElement json)
-			=> control.Write(((JsonNumber)json).ToString());
+			=> control.Write(((JsonNumber)json).ToString(CultureInfo.InvariantCulture));
 
 		static void WriteBool(WriteControl control, JsonElement json)
 			=> control.Write((JsonBool)json ? "true" : "false");

@@ -3,9 +3,9 @@
 	public sealed class JsonNull : JsonElement
 	{
 		#region Properties
-		public static JsonNull Instance { get => mInstance ?? (mInstance = new JsonNull()); }
+		private static JsonNull Instance { get => mInstance ?? (mInstance = new JsonNull()); }
 
-		public object Value { get => null; }
+		public static JsonNull Value { get => Instance; }
 		#endregion
 
 
@@ -15,7 +15,7 @@
 
 
 		#region Constructors
-		private JsonNull() {}
+		private JsonNull() { }
 		#endregion
 
 
@@ -26,19 +26,34 @@
 
 
 		#region Operator Overloads
-		public static implicit operator string(JsonNull obj)
+		public static implicit operator JsonObject(JsonNull obj)
 			=> null;
-		
-		public static implicit operator bool(JsonNull obj)
+
+		public static implicit operator JsonArray(JsonNull obj)
+			=> null;
+
+		public static implicit operator JsonString(JsonNull obj)
+			=> null;
+
+		public static implicit operator JsonNumber(JsonNull obj)
+			=> null;
+
+		public static implicit operator JsonBool(JsonNull obj)
+			=> null;
+
+		public static explicit operator string(JsonNull obj)
+			=> null;
+
+		public static explicit operator bool(JsonNull obj)
 			=> false;
 
-		public static implicit operator int(JsonNull obj)
+		public static explicit operator int(JsonNull obj)
 			=> 0;
 
-		public static implicit operator float(JsonNull obj)
+		public static explicit operator float(JsonNull obj)
 			=> 0f;
 
-		public static implicit operator double(JsonNull obj)
+		public static explicit operator double(JsonNull obj)
 			=> 0.0;
 		#endregion
 	}

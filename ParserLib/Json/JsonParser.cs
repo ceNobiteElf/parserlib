@@ -373,7 +373,7 @@ namespace ParserLib.Json
 
 			if (rawValue.Equals("null"))
 			{
-				return JsonNull.Instance;
+				return JsonNull.Value;
 			}
 
 			throw new ValueParseException(rawValue, typeof(JsonNull));

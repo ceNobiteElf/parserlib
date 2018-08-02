@@ -2,7 +2,7 @@
 
 namespace ParserLib.Json
 {
-	public sealed class JsonBool : JsonElement, IEquatable<JsonBool>, IEquatable<bool>
+	public sealed class JsonBool : JsonElement, IEquatable<JsonBool>, IEquatable<bool>, IComparable<JsonBool>, IComparable<bool>
 	{
 		#region Properties
 		public bool Value { get; set; }
@@ -22,13 +22,25 @@ namespace ParserLib.Json
 
 		#region Interface Implementation - IEquatable<JsonBool>
 		public bool Equals(JsonBool other)
-			=> other != null && Value.Equals(other.Value);
+			=> Value.Equals(other?.Value);
 		#endregion
 
 
 		#region Interface Implementation - IEquatable<bool>
 		public bool Equals(bool other)
 			=> Value.Equals(other);
+		#endregion
+
+
+		#region Interface Implementation - IComparable<JsonBool>
+		public int CompareTo(JsonBool other)
+			=> Value.CompareTo(other?.Value);
+		#endregion
+
+
+		#region Interface Implementation - IComparable<bool>
+		public int CompareTo(bool other)
+			=> Value.CompareTo(other);
 		#endregion
 
 
@@ -50,6 +62,33 @@ namespace ParserLib.Json
 
 		public static implicit operator bool(JsonBool obj)
 			=> obj.Value;
+		#endregion
+
+
+		#region Operator Overloads - Equality Operators (JsonString, JsonString)
+		public static bool operator ==(JsonBool lhs, JsonBool rhs)
+			=> lhs?.Value == rhs?.Value;
+
+		public static bool operator !=(JsonBool lhs, JsonBool rhs)
+			=> lhs?.Value != rhs?.Value;
+		#endregion
+
+
+		#region Operator Overloads - Equality Operators (JsonString, string)
+		public static bool operator ==(JsonBool lhs, bool rhs)
+			=> lhs?.Value == rhs;
+
+		public static bool operator !=(JsonBool lhs, bool rhs)
+			=> lhs?.Value == rhs;
+		#endregion
+
+
+		#region Operator Overloads - Equality Operators (JsonString, string)
+		public static bool operator ==(bool lhs, JsonBool rhs)
+			=> lhs == rhs?.Value;
+
+		public static bool operator !=(bool lhs, JsonBool rhs)
+			=> lhs != rhs?.Value;
 		#endregion
 	}
 }

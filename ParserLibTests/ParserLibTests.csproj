@@ -71,11 +71,13 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Json\ParserTests.cs" />
+    <Compile Include="Json\JsonParserTests.cs" />
     <Compile Include="Json\JsonBoolTests.cs" />
     <Compile Include="Json\JsonStringTests.cs" />
     <Compile Include="Json\JsonObjectTests.cs" />
-    <Compile Include="Json\WriterTests.cs" />
+    <Compile Include="Json\JsonWriterTests.cs" />
+    <Compile Include="Json\JsonArrayTests.cs" />
+    <Compile Include="Json\JsonNumberTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

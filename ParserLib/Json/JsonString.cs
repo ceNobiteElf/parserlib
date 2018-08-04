@@ -7,18 +7,9 @@ namespace ParserLib.Json
 	public sealed class JsonString : JsonElement, IEnumerable, IEnumerable<char>, IEquatable<JsonString>, IEquatable<string>, IComparable<JsonString>, IComparable<string>
 	{
 		#region Properties
-		public string Value
-		{
-			get => mValue;
-			set => mValue = value ?? string.Empty;
-		}
+		public string Value { get; }
 
 		public int Length { get => Value.Length; }
-		#endregion
-
-
-		#region Variables
-		public string mValue;
 		#endregion
 
 
@@ -28,7 +19,7 @@ namespace ParserLib.Json
 
 		public JsonString(string value)
 		{
-			Value = value;
+			Value = value ?? string.Empty;
 		}
 		#endregion
 
@@ -74,7 +65,19 @@ namespace ParserLib.Json
 			=> Value.GetHashCode();
 
 		public override bool Equals(object obj)
-			=> Value.Equals(obj);
+		{
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj is JsonString json)
+			{
+				return Equals(json);
+			}
+
+			return Value.Equals(obj);
+		}
 
 		public override string ToString()
 			=> Value;
@@ -95,6 +98,15 @@ namespace ParserLib.Json
 
 		public static bool operator !=(JsonString lhs, JsonString rhs)
 			=> lhs?.Value != rhs?.Value;
+		#endregion
+
+
+		#region Public API
+		public bool Equals(JsonString obj, StringComparison comparisonType)
+			=> Value.Equals(obj?.Value, comparisonType);
+
+		public bool Equals(string value, StringComparison comparisonType)
+			=> Value.Equals(value, comparisonType);
 		#endregion
 	}
 }

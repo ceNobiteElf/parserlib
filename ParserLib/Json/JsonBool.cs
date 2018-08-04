@@ -5,7 +5,7 @@ namespace ParserLib.Json
 	public sealed class JsonBool : JsonElement, IEquatable<JsonBool>, IEquatable<bool>, IComparable<JsonBool>, IComparable<bool>
 	{
 		#region Properties
-		public bool Value { get; set; }
+		public bool Value { get; }
 		#endregion
 
 
@@ -49,7 +49,19 @@ namespace ParserLib.Json
 			=> Value.GetHashCode();
 
 		public override bool Equals(object obj)
-			=> Value.Equals(obj);
+		{
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj is JsonBool json)
+			{
+				return Equals(json);
+			}
+
+			return Value.Equals(obj);
+		}
 
 		public override string ToString()
 			=> Value.ToString();

@@ -5,7 +5,7 @@ namespace ParserLib.Json
 	public sealed class JsonNumber : JsonElement, IEquatable<JsonNumber>, IEquatable<double>, IComparable<JsonNumber>, IComparable<double>, IFormattable
 	{
 		#region Properties
-		public double Value { get; set; }
+		public double Value { get; }
 		#endregion
 
 
@@ -65,6 +65,18 @@ namespace ParserLib.Json
 		#region Operator Overloads
 		public static implicit operator JsonNumber(double value)
 			=> new JsonNumber(value);
+
+		public static explicit operator short(JsonNumber obj)
+			=> (short)obj.Value;
+
+		public static explicit operator int(JsonNumber obj)
+			=> (int)obj.Value;
+
+		public static explicit operator long(JsonNumber obj)
+			=> (long)obj.Value;
+
+		public static explicit operator float(JsonNumber obj)
+			=> (float)obj.Value;
 
 		public static implicit operator double(JsonNumber obj)
 			=> obj.Value;

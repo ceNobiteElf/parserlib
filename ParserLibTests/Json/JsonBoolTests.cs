@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ParserLib.Json;
@@ -8,7 +9,7 @@ namespace ParserLibTests.Json
 	[TestClass]
 	public class JsonBoolTests
 	{
-		#region Tests
+		#region Tests - Constructors
 		[TestMethod, TestCategory("JsonBool - Constructors")]
 		public void Ctor_True()
 		{
@@ -29,18 +30,62 @@ namespace ParserLibTests.Json
 
 		#region Tests - Comparison
 		[TestMethod, TestCategory("JsonBool - Comparison")]
-		public void CompareTo_JsonBoolAndBool_Zero()
+		public void CompareToJsonBool_SameValues_Zero()
+		{
+			JsonBool lhs = true;
+			JsonBool rhs = true;
+
+			int result = lhs.CompareTo(rhs);
+
+			Assert.IsTrue(result == 0);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Comparison")]
+		public void CompareToJsonBool_LhsTrueRhsFalse_GTZero()
+		{
+			JsonBool lhs = true;
+			JsonBool rhs = false;
+
+			int result = lhs.CompareTo(rhs);
+
+			Assert.IsTrue(result > 0);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Comparison")]
+		public void CompareToJsonBool_LhsFalseRhsTrue_LTZero()
+		{
+			JsonBool lhs = false;
+			JsonBool rhs = true;
+
+			int result = lhs.CompareTo(rhs);
+
+			Assert.IsTrue(result < 0);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Comparison")]
+		public void CompareToJsonBool_LhsTrueRhsNull_GTZero()
+		{
+			JsonBool lhs = true;
+			JsonBool rhs = null;
+
+			int result = lhs.CompareTo(rhs);
+
+			Assert.IsTrue(result > 0);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Comparison")]
+		public void CompareToBool_SameValues_Zero()
 		{
 			JsonBool lhs = true;
 			bool rhs = true;
 
 			int result = lhs.CompareTo(rhs);
 
-			Assert.AreEqual(0, result);
+			Assert.IsTrue(result == 0);
 		}
 
 		[TestMethod, TestCategory("JsonBool - Comparison")]
-		public void CompareTo_JsonBoolAndBool_GTZero()
+		public void CompareToBool_LhsTrueRhsFalse_GTZero()
 		{
 			JsonBool lhs = true;
 			bool rhs = false;
@@ -51,7 +96,7 @@ namespace ParserLibTests.Json
 		}
 
 		[TestMethod, TestCategory("JsonBool - Comparison")]
-		public void CompareTo_JsonBoolAndBool_LTZero()
+		public void CompareToBool_LhsFalseRhsTrue_LTZero()
 		{
 			JsonBool lhs = false;
 			bool rhs = true;
@@ -60,65 +105,123 @@ namespace ParserLibTests.Json
 
 			Assert.IsTrue(result < 0);
 		}
+		#endregion
 
-		[TestMethod, TestCategory("JsonBool - Comparison")]
-		public void CompareTo_JsonBoolAndJsonBool_Zero()
+
+		#region Tests - Equals
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsJsonBool_SameInstance_True()
+		{
+			JsonBool obj = true;
+
+			bool result = obj.Equals(obj);
+
+			Assert.IsTrue(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsJsonBool_SameValues_True()
 		{
 			JsonBool lhs = true;
 			JsonBool rhs = true;
 
-			int result = lhs.CompareTo(rhs);
+			bool result = lhs.Equals(rhs);
 
-			Assert.AreEqual(0, result);
+			Assert.IsTrue(result);
 		}
 
-		[TestMethod, TestCategory("JsonBool - Comparison")]
-		public void CompareTo_JsonBoolAndJsonBool_GTZero()
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsJsonBool_DifferentValues_False()
 		{
 			JsonBool lhs = true;
 			JsonBool rhs = false;
 
-			int result = lhs.CompareTo(rhs);
+			bool result = lhs.Equals(rhs);
 
-			Assert.IsTrue(result > 0);
+			Assert.IsFalse(result);
 		}
 
-		[TestMethod, TestCategory("JsonBool - Comparison")]
-		public void CompareTo_JsonBoolAndJsonBool_LTZero()
-		{
-			JsonBool lhs = false;
-			JsonBool rhs = true;
-
-			int result = lhs.CompareTo(rhs);
-
-			Assert.IsTrue(result < 0);
-		}
-
-		[TestMethod, TestCategory("JsonBool - Comparison"), ExpectedException(typeof(NullReferenceException))]
-		public void CompareTo_NullAndNull_ThrowsException()
-		{
-			JsonBool lhs = null;
-			JsonBool rhs = null;
-
-			lhs.CompareTo(rhs);
-		}
-
-		[TestMethod, TestCategory("JsonBool - Comparison")]
-		public void CompareTo_JsonBoolAndNull_GTZero()
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsJsonBool_Null_False()
 		{
 			JsonBool lhs = true;
 			JsonBool rhs = null;
 
-			int result = lhs.CompareTo(rhs);
+			bool result = lhs.Equals(rhs);
 
-			Assert.IsTrue(result > 0);
+			Assert.IsFalse(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsBool_SameValues_True()
+		{
+			JsonBool lhs = true;
+			bool rhs = true;
+
+			bool result = lhs.Equals(rhs);
+
+			Assert.IsTrue(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsBool_DifferentValues_False()
+		{
+			JsonBool lhs = true;
+			bool rhs = false;
+
+			bool result = lhs.Equals(rhs);
+
+			Assert.IsFalse(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsObject_SameInstance_True()
+		{
+			object obj = new JsonBool(true);
+
+			bool result = obj.Equals(obj);
+
+			Assert.IsTrue(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsObject_DifferentTypes_False()
+		{
+			JsonBool lhs = true;
+			var rhs = new object();
+
+			bool result = lhs.Equals(rhs);
+
+			Assert.IsFalse(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsObject_SameValues_True()
+		{
+			JsonBool lhs = true;
+			object rhs = new JsonBool(true);
+
+			bool result = lhs.Equals(rhs);
+
+			Assert.IsTrue(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualsObject_DifferentValues_False()
+		{
+			JsonBool lhs = true;
+			object rhs = new JsonBool(false);
+
+			bool result = lhs.Equals(rhs);
+
+			Assert.IsFalse(result);
 		}
 		#endregion
 
 
-		#region Tests - Operators
+		#region Tests - Equality Operator
 		[TestMethod, TestCategory("JsonBool - Equality")]
-		public void Equality_JsonBoolAndJsonBool_True()
+		public void EqualityJsonBoolAndJsonBool_SameValues_True()
 		{
 			JsonBool lhs = true;
 			JsonBool rhs = true;
@@ -129,7 +232,7 @@ namespace ParserLibTests.Json
 		}
 
 		[TestMethod, TestCategory("JsonBool - Equality")]
-		public void Equality_JsonBoolAndJsonBool_False()
+		public void EqualityJsonBoolAndJsonBool_DifferentValues_False()
 		{
 			JsonBool lhs = true;
 			JsonBool rhs = false;
@@ -140,7 +243,18 @@ namespace ParserLibTests.Json
 		}
 
 		[TestMethod, TestCategory("JsonBool - Equality")]
-		public void Equality_JsonBoolAndNull_False()
+		public void EqualityJsonBoolAndJsonBool_LhsNullRhsFalse_False()
+		{
+			JsonBool lhs = null;
+			JsonBool rhs = false;
+
+			bool result = lhs == rhs;
+
+			Assert.IsFalse(result);
+		}
+
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void EqualityJsonBoolAndJsonBool_LhsFalseRhsNull_False()
 		{
 			JsonBool lhs = false;
 			JsonBool rhs = null;
@@ -151,18 +265,7 @@ namespace ParserLibTests.Json
 		}
 
 		[TestMethod, TestCategory("JsonBool - Equality")]
-		public void Equality_NullAndJsonBool_False()
-		{
-			JsonBool lhs = null;
-			JsonBool rhs = false;
-
-			bool result = lhs == rhs;
-
-			Assert.IsFalse(result);
-		}
-
-		[TestMethod, TestCategory("JsonBool - Equality")]
-		public void Equality_NullAndNull_True()
+		public void EqualityJsonBoolAndJsonBool_LhsNullRhsNull_True()
 		{
 			JsonBool lhs = null;
 			JsonBool rhs = null;
@@ -171,9 +274,12 @@ namespace ParserLibTests.Json
 
 			Assert.IsTrue(result);
 		}
+		#endregion
 
-		[TestMethod, TestCategory("JsonBool - Inequality")]
-		public void Inequality_JsonBoolAndJsonBool_True()
+
+		#region Tests - Inequality Operator
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void InequalityJsonBoolAndJsonBool_LhsTrueRhsFalse_True()
 		{
 			JsonBool lhs = true;
 			JsonBool rhs = false;
@@ -183,8 +289,8 @@ namespace ParserLibTests.Json
 			Assert.IsTrue(result);
 		}
 
-		[TestMethod, TestCategory("JsonBool - Inequality")]
-		public void Inequality_JsonBoolAndJsonBool_False()
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void InequalityJsonBoolAndJsonBool_SameValues_False()
 		{
 			JsonBool lhs = true;
 			JsonBool rhs = true;
@@ -194,8 +300,8 @@ namespace ParserLibTests.Json
 			Assert.IsFalse(result);
 		}
 
-		[TestMethod, TestCategory("JsonBool - Inequality")]
-		public void Inequality_JsonBoolAndNull_True()
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void InequalityJsonBoolAndJsonBool_LhsFalseRhsNull_True()
 		{
 			JsonBool lhs = false;
 			JsonBool rhs = null;
@@ -205,8 +311,8 @@ namespace ParserLibTests.Json
 			Assert.IsTrue(result);
 		}
 
-		[TestMethod, TestCategory("JsonBool - Inequality")]
-		public void Inequality_NullAndJsonBool_True()
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void InequalityJsonBoolAndJsonBool_LhsNullRhsFalse_True()
 		{
 			JsonBool lhs = null;
 			JsonBool rhs = false;
@@ -216,8 +322,8 @@ namespace ParserLibTests.Json
 			Assert.IsTrue(result);
 		}
 
-		[TestMethod, TestCategory("JsonBool - Inequality")]
-		public void Inequality_NullAndNull_False()
+		[TestMethod, TestCategory("JsonBool - Equality")]
+		public void InequalityJsonBoolAndJsonBool_LhsNullRhsNull_False()
 		{
 			JsonBool lhs = null;
 			JsonBool rhs = null;
@@ -225,6 +331,22 @@ namespace ParserLibTests.Json
 			bool result = lhs != rhs;
 
 			Assert.IsFalse(result);
+		}
+		#endregion
+
+
+		#region Tests - Hash Codes
+		[TestMethod, TestCategory("JsonBool - Hash Codes")]
+		public void GetHashCode_SameValues_HashCodesAreTheSame()
+		{
+			JsonBool obj1 = true;
+			JsonBool obj2 = true;
+
+			int result1 = obj1.GetHashCode();
+			int result2 = obj2.GetHashCode();
+
+			Assert.IsTrue(obj1.Equals(obj2));
+			Assert.IsTrue(result1 == result2);
 		}
 		#endregion
 	}

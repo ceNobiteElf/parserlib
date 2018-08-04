@@ -1,4 +1,6 @@
-﻿namespace ParserLib.Json
+﻿using System.Collections.Generic;
+
+namespace ParserLib.Json
 {
 	public abstract class JsonElement
 	{
@@ -16,13 +18,34 @@
 		}
 
 		public static explicit operator string(JsonElement obj)
-			=> (string)(obj as JsonString);
+			=> obj as JsonString;
 
 		public static explicit operator bool(JsonElement obj)
-			=> (bool)(obj as JsonBool);
+			=> obj as JsonBool;
 
 		public static explicit operator double(JsonElement obj)
-			=> (double)(obj as JsonNumber);
+			=> obj as JsonNumber;
+
+		public static implicit operator JsonElement(string obj)
+			=> (JsonString)obj;
+
+		public static implicit operator JsonElement(bool obj)
+			=> (JsonBool)obj;
+
+		public static implicit operator JsonElement(double obj)
+			=> (JsonNumber)obj;
+
+		public static implicit operator JsonElement(List<JsonElement> obj)
+			=> (JsonArray)obj;
+
+		public static implicit operator JsonElement(Dictionary<JsonString, JsonElement> obj)
+			=> (JsonObject)obj;
+		#endregion
+
+
+		#region Object Overrides
+		public abstract override int GetHashCode();
+		public abstract override bool Equals(object obj);
 		#endregion
 	}
 }

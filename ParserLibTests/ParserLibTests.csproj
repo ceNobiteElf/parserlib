@@ -73,6 +73,9 @@
   <ItemGroup>
     <Compile Include="Json\ParserTests.cs" />
     <Compile Include="Json\JsonBoolTests.cs" />
+    <Compile Include="Json\JsonStringTests.cs" />
+    <Compile Include="Json\JsonObjectTests.cs" />
+    <Compile Include="Json\WriterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

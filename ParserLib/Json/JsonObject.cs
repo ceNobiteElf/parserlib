@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ParserLib.Json
 {
 	public sealed class JsonObject : JsonElement, IJsonRoot, IEnumerable, IEnumerable<KeyValuePair<JsonString, JsonElement>>, IDictionary<JsonString, JsonElement>
 	{
 		#region Properties
-		private IDictionary<JsonString, JsonElement> Elements { get; set; }
+		private IDictionary<JsonString, JsonElement> Elements { get; }
 
 		public int Count { get => Elements.Count; }
 		public bool IsReadOnly { get => Elements.IsReadOnly; } 
@@ -20,7 +21,7 @@ namespace ParserLib.Json
 		public JsonObject()
 			: this(new Dictionary<JsonString, JsonElement>()) { }
 
-		public JsonObject(Dictionary<JsonString, JsonElement> elements)
+		public JsonObject(IDictionary<JsonString, JsonElement> elements)
 		{
 			Elements = elements;
 		}
@@ -71,10 +72,57 @@ namespace ParserLib.Json
 
 		#region Object Overrides
 		public override int GetHashCode()
-			=> Elements.GetHashCode();
+		{
+			int hashCode = 764305191;
+
+			unchecked
+			{
+				foreach (KeyValuePair<JsonString, JsonElement> pair in Elements)
+				{
+					hashCode = hashCode * -1521134295 + pair.Key.GetHashCode();
+					hashCode = hashCode * -1521134295 + pair.Value.GetHashCode();
+				}
+			}
+
+			return hashCode;
+		}
 
 		public override bool Equals(object obj)
-			=> Elements.Equals(obj);
+		{
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			bool equals = false;
+			IDictionary<JsonString, JsonElement> other = null;
+
+			if (obj is JsonObject otherObject)
+			{
+				other = otherObject.Elements;
+			}
+			else if (obj is IDictionary<JsonString, JsonElement> otherDictionary)
+			{
+				other = otherDictionary;
+			}
+
+			if (other != null)
+			{
+				equals = Elements.Count == other.Count && Keys.All(key => {
+					if (other.ContainsKey(key))
+					{
+						JsonElement lhs = Elements[key];
+						JsonElement rhs = other[key];
+
+						return (lhs == null && rhs == null) || (lhs != null && lhs.Equals(rhs));
+					}
+
+					return false;
+				});
+			}
+
+			return equals;
+		}
 		#endregion
 
 
@@ -83,8 +131,7 @@ namespace ParserLib.Json
 		{
 			get
 			{
-				JsonElement result;
-				TryGetValue(index, out result);
+				TryGetValue(index, out JsonElement result);
 
 				return result;
 			}
@@ -105,7 +152,7 @@ namespace ParserLib.Json
 		public static implicit operator JsonObject(Dictionary<JsonString, JsonElement> elements)
 			=> new JsonObject(elements);
 
-		public static explicit operator Dictionary<JsonString, JsonElement>(JsonObject obj)
+		public static implicit operator Dictionary<JsonString, JsonElement>(JsonObject obj)
 			=> (Dictionary<JsonString, JsonElement>)obj.Elements;
 		#endregion
 

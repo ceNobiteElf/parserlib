@@ -39,22 +39,22 @@ namespace ParserLib.Json
 
 
 		#region Public API
-		public static void WriteToFile<T>(string filePath, T json) where T : JsonElement, IJsonRoot
+		public static void WriteToFile(string filePath, JsonElement json)
 			=> WriteToFile(filePath, json, null);
 
-		public static void WriteToFile<T>(string filePath, T json, bool prettyPrint) where T : JsonElement, IJsonRoot
+		public static void WriteToFile(string filePath, JsonElement json, bool prettyPrint)
 			=> WriteToFile(filePath, json, new WriterOptions { PrettyPrint = prettyPrint });
 
-		public static void WriteToFile<T>(string filePath, T json, WriterOptions options) where T : JsonElement, IJsonRoot
+		public static void WriteToFile(string filePath, JsonElement json, WriterOptions options)
 			=> Write(new FileWriteControl(filePath, options), json);
 
-		public static string WriteToString<T>(T json) where T : JsonElement, IJsonRoot
+		public static string WriteToString(JsonElement json)
 			=> WriteToString(json, null);
 
-		public static string WriteToString<T>(T json, bool prettyPrint) where T : JsonElement, IJsonRoot
+		public static string WriteToString(JsonElement json, bool prettyPrint)
 			=> WriteToString(json, new WriterOptions { PrettyPrint = prettyPrint });
 
-		public static string WriteToString<T>(T json, WriterOptions options) where T : JsonElement, IJsonRoot
+		public static string WriteToString(JsonElement json, WriterOptions options)
 		{
 			var control = new StringWriteControl(options);
 
@@ -73,6 +73,11 @@ namespace ParserLib.Json
 				if (json == null)
 				{
 					throw new ArgumentNullException(nameof(json));
+				}
+
+				if (!typeof(IJsonRoot).IsInstanceOfType(json))
+				{
+					throw new ArgumentException("The given JSON element must implement the IJsonRoot interface.", nameof(json));
 				}
 
 				WriteElement(control, json);

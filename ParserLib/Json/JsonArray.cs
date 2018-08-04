@@ -6,7 +6,7 @@ namespace ParserLib.Json
 	public sealed class JsonArray : JsonElement, IJsonRoot, IEnumerable, IEnumerable<JsonElement>, IList<JsonElement>
 	{
 		#region Properties
-		private IList<JsonElement> Values { get; set; }
+		private IList<JsonElement> Values { get; }
 
 		public int Count { get => Values.Count; }
 		public bool IsReadOnly { get => Values.IsReadOnly; }
@@ -17,7 +17,7 @@ namespace ParserLib.Json
 		public JsonArray()
 			: this(new List<JsonElement>()) { }
 
-		public JsonArray(List<JsonElement> values)
+		public JsonArray(IList<JsonElement> values)
 		{
 			Values = values;
 		}
@@ -82,7 +82,7 @@ namespace ParserLib.Json
 		public static implicit operator JsonArray(List<JsonElement> values)
 			=> new JsonArray(values);
 
-		public static explicit operator List<JsonElement>(JsonArray obj)
+		public static implicit operator List<JsonElement>(JsonArray obj)
 			=> (List<JsonElement>)obj.Values;
 		#endregion
 

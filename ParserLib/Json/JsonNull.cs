@@ -20,6 +20,12 @@
 
 
 		#region Object Overrides
+		public override int GetHashCode()
+			=> 0;
+
+		public override bool Equals(object obj)
+			=> ReferenceEquals(this, obj);
+
 		public override string ToString()
 			=> "null";
 		#endregion
@@ -41,20 +47,29 @@
 		public static implicit operator JsonBool(JsonNull obj)
 			=> null;
 
+		public static explicit operator char(JsonNull obj)
+			=> default(char);
+
 		public static explicit operator string(JsonNull obj)
-			=> null;
+			=> default(string);
 
 		public static explicit operator bool(JsonNull obj)
-			=> false;
+			=> default(bool);
+
+		public static explicit operator short(JsonNull obj)
+			=> default(short);
 
 		public static explicit operator int(JsonNull obj)
-			=> 0;
+			=> default(int);
+
+		public static explicit operator long(JsonNull obj)
+			=> default(long);
 
 		public static explicit operator float(JsonNull obj)
-			=> 0f;
+			=> default(float);
 
 		public static explicit operator double(JsonNull obj)
-			=> 0.0;
+			=> default(double);
 		#endregion
 	}
 }

@@ -38,6 +38,9 @@ namespace ParserLib.Json
 		public static implicit operator JsonElement(List<JsonElement> obj)
 			=> (JsonArray)obj;
 
+		public static implicit operator JsonElement(JsonElement[] obj)
+			=> (JsonArray)obj;
+
 		public static implicit operator JsonElement(Dictionary<JsonString, JsonElement> obj)
 			=> (JsonObject)obj;
 		#endregion

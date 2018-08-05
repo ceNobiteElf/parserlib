@@ -2,35 +2,25 @@
 
 using ParserLib.Json;
 
+using ParserLibTests.Internal;
+
 namespace ParserLibTests.Json
 {
 	[TestClass]
-	public class JsonStringTests
+	public sealed class JsonStringTests
 	{
 		#region Tests - Constructors
 		[TestMethod, TestCategory("JsonString - Constructors")]
 		public void Ctor_String()
-		{
-			var result = new JsonString("TestString");
-
-			Assert.AreEqual("TestString", result.Value);
-		}
+			=> Assert.AreEqual("TestString", new JsonString("TestString").Value);
 
 		[TestMethod, TestCategory("JsonString - Constructors")]
 		public void Ctor_Default_EmptyString()
-		{
-			var result = new JsonString();
-
-			Assert.AreEqual(string.Empty, result.Value);
-		}
+			=> Assert.AreEqual(string.Empty, new JsonString().Value);
 
 		[TestMethod, TestCategory("JsonString - Constructors")]
 		public void Ctor_Null_EmptyString()
-		{
-			var result = new JsonString(null);
-
-			Assert.AreEqual(string.Empty, result.Value);
-		}
+			=> Assert.AreEqual(string.Empty, new JsonString(null).Value);
 		#endregion
 
 
@@ -39,136 +29,58 @@ namespace ParserLibTests.Json
 		public void EqualsJsonString_SameInstance_True()
 		{
 			JsonString obj = "test";
-
-			bool result = obj.Equals(obj);
-
-			Assert.IsTrue(result);
+			EqualityTester.AssertEquals(obj, obj);
 		}
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsJsonString_SameValues_True()
-		{
-			JsonString lhs = "test";
-			JsonString rhs = "test";
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsTrue(result);
-		}
+			=> EqualityTester.AssertEquals<JsonString, JsonString>("test", "test");
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsJsonString_DifferentValues_False()
-		{
-			JsonString lhs = "test1";
-			JsonString rhs = "test2";
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsFalse(result);
-		}
+			=> EqualityTester.AssertNotEquals<JsonString, JsonString>("test1", "test2");
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsJsonString_Null_False()
-		{
-			JsonString lhs = "test1";
-			JsonString rhs = null;
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsFalse(result);
-		}
+			=> EqualityTester.AssertNotEquals<JsonString, JsonString>("test", null);
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsString_SameValues_True()
-		{
-			JsonString lhs = "test";
-			string rhs = "test";
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsTrue(result);
-		}
+			=> EqualityTester.AssertEquals<JsonString, string>("test", "test");
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsString_DifferentValues_False()
-		{
-			JsonString lhs = "test1";
-			string rhs = "test2";
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsFalse(result);
-		}
+			=> EqualityTester.AssertNotEquals<JsonString, string>("test1", "test2");
 
 		[TestMethod, TestCategory("JsonString - Equality")]
-		public void EqualsString_null_False()
-		{
-			JsonString lhs = "test";
-			string rhs = null;
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsFalse(result);
-		}
+		public void EqualsString_Null_False()
+			=> EqualityTester.AssertNotEquals<JsonString, string>("test", null);
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsObject_SameInstance_True()
 		{
-			object obj = new JsonString("test");
-
-			bool result = obj.Equals(obj);
-
-			Assert.IsTrue(result);
+			JsonString obj = "test";
+			EqualityTester.AssertEquals<JsonString>(obj, obj);
 		}
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsObject_DifferentTypes_False()
-		{
-			JsonString lhs = "test";
-			var rhs = new object();
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsFalse(result);
-		}
+			=> EqualityTester.AssertNotEquals<JsonString>("test", new object());
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsObject_SameValues_True()
-		{
-			JsonString lhs = "test";
-			object rhs = new JsonString("test");
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsTrue(result);
-		}
+			=> EqualityTester.AssertEquals<JsonString>("test", new JsonString("test"));
 
 		[TestMethod, TestCategory("JsonString - Equality")]
 		public void EqualsObject_DifferentValues_False()
-		{
-			JsonString lhs = "test1";
-			object rhs = new JsonString("test2");
-
-			bool result = lhs.Equals(rhs);
-
-			Assert.IsFalse(result);
-		}
+			=> EqualityTester.AssertNotEquals<JsonString>("test1", new JsonString("test2"));
 		#endregion
 
 
 		#region Tests - Hash Codes
 		[TestMethod, TestCategory("JsonString - Hash Codes")]
 		public void GetHashCode_SameValues_HashCodesAreTheSame()
-		{
-			JsonString obj1 = "test";
-			JsonString obj2 = "test";
-
-			int result1 = obj1.GetHashCode();
-			int result2 = obj2.GetHashCode();
-
-			Assert.IsTrue(obj1.Equals(obj2));
-			Assert.IsTrue(result1 == result2);
-		}
+			=> EqualityTester.AssertSameHashCodes<JsonString>("test", "test");
 		#endregion
 	}
 }

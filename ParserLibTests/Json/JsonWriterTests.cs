@@ -7,7 +7,7 @@ using ParserLib.Json;
 namespace ParserLibTests.Json
 {
 	[TestClass]
-	public class JsonWriterTests
+	public sealed class JsonWriterTests
 	{
 		#region Tests - General
 		[TestMethod, TestCategory("JsonWriter - General"), ExpectedException(typeof(ArgumentNullException))]

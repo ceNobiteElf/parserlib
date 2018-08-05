@@ -80,7 +80,7 @@ namespace ParserLib.Json
 				foreach (KeyValuePair<JsonString, JsonElement> pair in Elements)
 				{
 					hashCode = hashCode * -1521134295 + pair.Key.GetHashCode();
-					hashCode = hashCode * -1521134295 + pair.Value.GetHashCode();
+					hashCode = hashCode * -1521134295 + pair.Value?.GetHashCode() ?? 0;
 				}
 			}
 

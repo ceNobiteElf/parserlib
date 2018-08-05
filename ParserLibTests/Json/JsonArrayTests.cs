@@ -4,45 +4,79 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ParserLib.Json;
 
+using ParserLibTests.Internal;
+
 namespace ParserLibTests.Json
 {
 	[TestClass]
-	public class JsonArrayTests
+	public sealed class JsonArrayTests
 	{
 		#region Tests - Constructors
 		[TestMethod, TestCategory("JsonArray - Constructors")]
 		public void Ctor_Default_EmptyCollection()
-		{
-			var result = new JsonArray();
-
-			Assert.AreEqual(0, result.Count);
-		}
+			=> Assert.AreEqual(0, new JsonArray().Count);
 
 		[TestMethod, TestCategory("JsonArray - Constructors")]
 		public void Ctor_List_MatchingCollection()
-		{
-			var data = new List<JsonElement> { "Test", 1, true, null, new JsonObject() };
-
-			var result = new JsonArray(data);
-
-			Assert.IsFalse(result.IsReadOnly);
-			Assert.AreEqual(data.Count, result.Count);
-			Assert.AreEqual("Test", (string)result[0]);
-			Assert.AreEqual(1, (double)result[1]);
-			Assert.IsTrue((bool)result[2]);
-			Assert.IsNull(result[3]);
-			Assert.IsInstanceOfType(result[4], typeof(JsonObject));
-		}
+			=> AssertConstructor(GetData());
 
 		[TestMethod, TestCategory("JsonArray - Constructors")]
 		public void Ctor_Array_MatchingCollectionAndReadonly()
-		{
-			var data = new JsonElement[] { "Test", 1, true, null, new JsonObject() };
+			=> AssertConstructor(GetReadonlyData());
+		#endregion
 
+
+		#region Tests - Equals
+		[TestMethod, TestCategory("JsonArray - Equality")]
+		public void EqualsObject_SameInstance_True()
+		{
+			var obj = new JsonArray(GetData());
+			EqualityTester.AssertEquals<JsonArray>(obj, obj);
+		}
+
+		[TestMethod, TestCategory("JsonArray - Equality")]
+		public void EqualsObject_DifferentTypes_False()
+			=> EqualityTester.AssertNotEquals<JsonArray>(GetData(), new object());
+
+		[TestMethod, TestCategory("JsonArray - Equality")]
+		public void EqualsObject_SameValues_True()
+			=> EqualityTester.AssertEquals<JsonArray>(GetData(), new JsonArray(GetReadonlyData()));
+
+		[TestMethod, TestCategory("JsonArray - Equality")]
+		public void EqualsObject_SameValuesDifferentOrder_False()
+		=> EqualityTester.AssertNotEquals<JsonArray>(new JsonArray { "a", "b", "c"}, new JsonArray { "c", "a", "b" });
+
+		[TestMethod, TestCategory("JsonArray - Equality")]
+		public void EqualsObject_DifferentValues_False()
+			=> EqualityTester.AssertNotEquals<JsonArray>(GetData(), new JsonArray { "hello", 5 });
+
+		[TestMethod, TestCategory("JsonArray - Equality")]
+		public void EqualsObject_Null_False()
+			=> EqualityTester.AssertNotEquals<JsonArray>(GetData(), null);
+		#endregion
+
+
+		#region Tests - Hash Codes
+		[TestMethod, TestCategory("JsonArray - Hash Codes")]
+		public void GetHashCode_SameValues_HashCodesAreTheSame()
+			=> EqualityTester.AssertSameHashCodes<JsonArray>(GetData(), GetReadonlyData());
+		#endregion
+
+
+		#region Helper Functions
+		private static List<JsonElement> GetData()
+			=> new List<JsonElement> { "Test", 1, true, null, new JsonObject() };
+
+		private static JsonElement[] GetReadonlyData()
+			=> new JsonElement[] { "Test", 1, true, null, new JsonObject() };
+
+		static void AssertConstructor(IList<JsonElement> data)
+		{
 			var result = new JsonArray(data);
 
-			Assert.IsTrue(result.IsReadOnly);
-			Assert.AreEqual(data.Length, result.Count);
+			Assert.AreEqual(data.IsReadOnly, result.IsReadOnly);
+			Assert.AreEqual(data.Count, result.Count);
+
 			Assert.AreEqual("Test", (string)result[0]);
 			Assert.AreEqual(1, (double)result[1]);
 			Assert.IsTrue((bool)result[2]);

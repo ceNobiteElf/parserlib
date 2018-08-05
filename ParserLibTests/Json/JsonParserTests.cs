@@ -6,7 +6,7 @@ using ParserLib.Json.Exceptions;
 namespace ParserLibTests.Json
 {
 	[TestClass]
-	public class JsonParserTests
+	public sealed class JsonParserTests
 	{
 		#region Tests - General
 		[TestMethod, TestCategory("JsonParser - General"), ExpectedException(typeof(UnexpectedEndException))]

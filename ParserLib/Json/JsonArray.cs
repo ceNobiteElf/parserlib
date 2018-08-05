@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ParserLib.Json
 {
@@ -65,10 +66,46 @@ namespace ParserLib.Json
 
 		#region Object Overrides
 		public override int GetHashCode()
-			=> Values.GetHashCode();
+		{
+			int hashCode = 764305191;
+
+			unchecked
+			{
+				foreach (JsonElement value in Values)
+				{
+					hashCode = hashCode * -1521134295 + value?.GetHashCode() ?? 0;
+				}
+			}
+
+			return hashCode;
+		}
 
 		public override bool Equals(object obj)
-			=> Values.Equals(obj);
+		{
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			bool equals = false;
+			IList<JsonElement> other = null;
+
+			if (obj is JsonArray otherObject)
+			{
+				other = otherObject.Values;
+			}
+			else if (obj is IList<JsonElement> otherList)
+			{
+				other = otherList;
+			}
+
+			if (other != null)
+			{
+				equals = Values.Count == other.Count && Values.SequenceEqual(other);
+			}
+
+			return equals;
+		}
 		#endregion
 
 
@@ -82,8 +119,8 @@ namespace ParserLib.Json
 		public static implicit operator JsonArray(List<JsonElement> values)
 			=> new JsonArray(values);
 
-		public static implicit operator List<JsonElement>(JsonArray obj)
-			=> (List<JsonElement>)obj.Values;
+		public static implicit operator JsonArray(JsonElement[] values)
+			=> new JsonArray(values);
 		#endregion
 
 

@@ -100,7 +100,7 @@ namespace ParserLib.Json
 			}
 			else
 			{
-				throw new Exception();
+				throw new JsonException("Attempted to write an unsupported JSON type.");
 			}
 		}
 

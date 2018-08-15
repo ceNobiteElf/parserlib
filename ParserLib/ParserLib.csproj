@@ -82,6 +82,8 @@
     <Compile Include="Json\JsonBool.cs" />
     <Compile Include="Json\JsonElement.cs" />
     <Compile Include="Json\JsonException.cs" />
+    <Compile Include="Json\Serialization\JsonSerializableAttribute.cs" />
+    <Compile Include="Json\Serialization\JsonSerializer.cs" />
     <Compile Include="Json\JsonNumber.cs" />
     <Compile Include="Json\JsonObject.cs" />
     <Compile Include="Json\JsonString.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="Json\MultipleRootsBehaviour.cs" />
     <Compile Include="Json\ReaderOptions.cs" />
     <Compile Include="Json\Exceptions\UnexpectedTokenException.cs" />
+    <Compile Include="Json\Serialization\SerializationMode.cs" />
     <Compile Include="Json\WriterOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

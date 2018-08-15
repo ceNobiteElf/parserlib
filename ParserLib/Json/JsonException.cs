@@ -5,8 +5,7 @@ namespace ParserLib.Json
 	public class JsonException : Exception
 	{
 		#region Constructors
-		public JsonException()
-			: base() { }
+		public JsonException() { }
 
 		public JsonException(string message)
 			: base(message) { }

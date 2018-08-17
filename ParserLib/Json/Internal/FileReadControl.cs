@@ -85,12 +85,10 @@ namespace ParserLib.Json.Internal
 			return Buffer[index];
 		}
 
-		int ReadBlock()
+		void ReadBlock()
 		{
 			BytesRead = Reader.Read(Buffer, 0, Buffer.Length);
 			ReadHead = 0;
-
-			return BytesRead;
 		}
 		#endregion
 	}

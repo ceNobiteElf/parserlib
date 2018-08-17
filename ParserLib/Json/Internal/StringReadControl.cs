@@ -5,7 +5,7 @@
 		#region Properties
 		public string RawJson { get; }
 
-		public int CurrentPosition { get; private set; }
+		public int ReadHead { get; private set; }
 		#endregion
 
 
@@ -19,8 +19,21 @@
 
 
 		#region Public API
-		public override char ReadNextCharacter()
-			=> CurrentCharacter = CurrentPosition < RawJson.Length ? RawJson[CurrentPosition++] : '\0';
+		public override char Read()
+		{
+			CurrentCharacter = ReadCharacter(ReadHead);
+			++ReadHead;
+
+			NextCharacter = ReadCharacter(ReadHead);
+
+			return CurrentCharacter;
+		}
+		#endregion
+
+
+		#region Helper Functions
+		char ReadCharacter(int index)
+			=> ReadHead < RawJson.Length ? RawJson[index] : '\0';
 		#endregion
 	}
 }

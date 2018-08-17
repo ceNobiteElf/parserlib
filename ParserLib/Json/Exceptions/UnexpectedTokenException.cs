@@ -4,7 +4,7 @@
 	{
 		#region Constructors
 		public UnexpectedTokenException()
-			: base("The parser did not transition from a previous state correctly before reaching an unexpected token.") { }
+			: base("The parser did not transition from a previous state correctly and reached an unexpected token.") { }
 
 		public UnexpectedTokenException(string message)
 			: base(message) { }

@@ -78,6 +78,23 @@ namespace ParserLibTests.Json
 			Assert.IsInstanceOfType(result["lastKnownMeal"], typeof(JsonNull));
 		}
 
+		[TestMethod, TestCategory("JsonParser - Parse JsonObject")]
+		public void ParseFromString_ValidJsonObject_NestedObjects()
+		{
+			string jsonString = "{'root': {'object1': {}, 'object2': {}, 'name': 'Nested', 'object3': {}}}";
+
+			var result = JsonParser.ParseFromString<JsonObject>(jsonString);
+
+			Assert.AreEqual(1, result.Count);
+			Assert.IsInstanceOfType(result["root"], typeof(JsonObject));
+
+			var root = (JsonObject)result["root"];
+			Assert.AreEqual(4, root.Count);
+			Assert.IsInstanceOfType(root["object1"], typeof(JsonObject));
+			Assert.IsInstanceOfType(root["object2"], typeof(JsonObject));
+			Assert.IsInstanceOfType(root["object3"], typeof(JsonObject));
+		}
+
 		[TestMethod, TestCategory("JsonParser - Parse JsonObject"), ExpectedException(typeof(DuplicateKeyException))]
 		public void ParseFromString_InvalidJsonObject_DuplicateKeysThrowsException()
 		{
@@ -128,6 +145,23 @@ namespace ParserLibTests.Json
 
 			Assert.AreEqual(3, result.Count);
 			Assert.AreEqual("Engineer", (string)result[2]["occupation"]);
+		}
+
+		[TestMethod, TestCategory("JsonParser - Parse JsonArray")]
+		public void ParseFromString_ValidJsonArray_NestedArrays()
+		{
+			string jsonString = "[[1], [1,2], [1,2,3], [1,2,3,4], [[], [2], [3], [4], []]]";
+
+			var result = JsonParser.ParseFromString<JsonArray>(jsonString);
+
+			Assert.AreEqual(5, result.Count);
+			Assert.AreEqual(1, ((JsonArray)result[0]).Count);
+			Assert.AreEqual(2, ((JsonArray)result[1]).Count);
+			Assert.AreEqual(3, ((JsonArray)result[2]).Count);
+			Assert.AreEqual(4, ((JsonArray)result[3]).Count);
+			Assert.AreEqual(5, ((JsonArray)result[4]).Count);
+			Assert.AreEqual(0, ((JsonArray)result[4][0]).Count);
+			Assert.AreEqual(1, ((JsonArray)result[4][1]).Count);
 		}
 
 		[TestMethod, TestCategory("JsonParser - Parse JsonArray"), ExpectedException(typeof(UnexpectedTokenException))]

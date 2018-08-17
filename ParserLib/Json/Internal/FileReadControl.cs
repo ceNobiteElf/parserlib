@@ -14,7 +14,7 @@ namespace ParserLib.Json.Internal
 		private int BytesRead { get; set; }
 
 		private char[] Buffer { get; }
-		private int CurrentBufferPosition { get; set; }
+		private int ReadHead { get; set; }
 		#endregion
 
 
@@ -56,26 +56,39 @@ namespace ParserLib.Json.Internal
 
 
 		#region Public API
-		public override char ReadNextCharacter()
+		public override char Read()
 		{
-			if (BytesRead == 0 || CurrentBufferPosition >= BytesRead)
+			CurrentCharacter = ReadCharacter(ReadHead);
+			++ReadHead;
+
+			NextCharacter = ReadCharacter(ReadHead);
+
+			return CurrentCharacter;
+		}
+		#endregion
+
+
+		#region Helper Functions
+		char ReadCharacter(int index)
+		{
+			if (BytesRead == 0 || index >= BytesRead)
 			{
 				ReadBlock();
+				index = 0;
 
 				if (BytesRead == 0)
 				{
-					return CurrentCharacter = '\0';
+					return '\0';
 				}
 			}
 
-			return CurrentCharacter = Buffer[CurrentBufferPosition++];
+			return Buffer[index];
 		}
 
-		public int ReadBlock()
+		int ReadBlock()
 		{
 			BytesRead = Reader.Read(Buffer, 0, Buffer.Length);
-
-			CurrentBufferPosition = 0;
+			ReadHead = 0;
 
 			return BytesRead;
 		}

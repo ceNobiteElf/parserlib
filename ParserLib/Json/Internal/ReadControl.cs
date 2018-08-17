@@ -10,6 +10,7 @@
 		public MultipleRootsBehaviour MultipleRootsBehaviour { get => Options.MultipleRootsBehaviour; }
 
 		public char CurrentCharacter { get; protected set; }
+		public char NextCharacter { get; protected set; }
 		#endregion
 
 
@@ -27,7 +28,7 @@
 
 
 		#region Public API
-		public abstract char ReadNextCharacter();
+		public abstract char Read();
 		#endregion
 	}
 }

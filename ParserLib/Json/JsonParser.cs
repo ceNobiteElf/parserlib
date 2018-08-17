@@ -81,7 +81,7 @@ namespace ParserLib.Json
 
 			try
 			{
-				while (control.ReadNextCharacter() != '\0')
+				while (control.Read() != '\0')
 				{
 					if (control.CurrentCharacter == '{' || control.CurrentCharacter == '[')
 					{
@@ -131,10 +131,8 @@ namespace ParserLib.Json
 			JsonElement currentValue = null;
 			bool pairAdded = false;
 
-			do
+			while (control.Read() != '}')
 			{
-				control.ReadNextCharacter();
-
 				if (ParserLookup.TryGetValue(control.CurrentCharacter, out Func<ReadControl, JsonElement> parser))
 				{
 					currentValue = parser.Invoke(control);
@@ -207,8 +205,7 @@ namespace ParserLib.Json
 
 					currentValue = null;
 				}
-
-			} while (control.CurrentCharacter != '}');
+			}
 
 			return obj;
 		}
@@ -220,10 +217,8 @@ namespace ParserLib.Json
 			JsonElement currentValue = null;
 			bool valueAdded = false;
 
-			do
+			while (control.Read() != ']')
 			{
-				control.ReadNextCharacter();
-
 				if (ParserLookup.TryGetValue(control.CurrentCharacter, out Func<ReadControl, JsonElement> parser))
 				{
 					currentValue = parser.Invoke(control);
@@ -263,8 +258,7 @@ namespace ParserLib.Json
 					currentValue = null;
 					valueAdded = true;
 				}
-
-			} while (control.CurrentCharacter != ']');
+			}
 
 			return array;
 		}
@@ -275,7 +269,7 @@ namespace ParserLib.Json
 
 			char enclosingChar = control.CurrentCharacter;
 
-			while (control.ReadNextCharacter() != enclosingChar)
+			while (control.Read() != enclosingChar)
 			{
 				if (control.CurrentCharacter == '\0')
 				{
@@ -283,7 +277,7 @@ namespace ParserLib.Json
 				}
 				else if (control.CurrentCharacter == '\\')
 				{
-					control.ReadNextCharacter();
+					control.Read();
 
 					char escapedChar;
 
@@ -295,7 +289,7 @@ namespace ParserLib.Json
 
 							for (int i = 0; i < 4; ++i)
 							{
-								unicodeHex.Append(control.ReadNextCharacter());
+								unicodeHex.Append(control.Read());
 							}
 
 							escapedChar = (char)UInt16.Parse(unicodeHex.ToString(), NumberStyles.AllowHexSpecifier);
@@ -320,11 +314,12 @@ namespace ParserLib.Json
 		static JsonNumber ParseNumber(ReadControl control)
 		{
 			var value = new StringBuilder();
+			value.Append(control.CurrentCharacter);
 
-			do
+			while (!IsEndOfLiteral(control.NextCharacter))
 			{
-				value.Append(control.CurrentCharacter);
-			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
+				value.Append(control.Read());
+			}
 
 			string rawValue = value.ToString();
 
@@ -339,11 +334,12 @@ namespace ParserLib.Json
 		static JsonBool ParseBool(ReadControl control)
 		{
 			var value = new StringBuilder();
+			value.Append(control.CurrentCharacter);
 
-			do
+			while (!IsEndOfLiteral(control.NextCharacter))
 			{
-				value.Append(control.CurrentCharacter);
-			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
+				value.Append(control.Read());
+			}
 
 			string rawValue = value.ToString();
 
@@ -363,11 +359,12 @@ namespace ParserLib.Json
 		static JsonNull ParseNull(ReadControl control)
 		{
 			var value = new StringBuilder();
+			value.Append(control.CurrentCharacter);
 
-			do
+			while (!IsEndOfLiteral(control.NextCharacter))
 			{
-				value.Append(control.CurrentCharacter);
-			} while (!IsEndOfLiteral(control.ReadNextCharacter()));
+				value.Append(control.Read());
+			}
 
 			string rawValue = value.ToString();
 

@@ -1,6 +1,8 @@
-﻿namespace ParserLib.Json.Internal
+﻿using System;
+
+namespace ParserLib.Json.Internal
 {
-	internal abstract class ReadControl : IControl
+	internal abstract class ReadControl : IDisposable
 	{
 		#region Properties
 		protected ReaderOptions Options { get; }

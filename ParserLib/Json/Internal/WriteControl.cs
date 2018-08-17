@@ -1,6 +1,8 @@
-﻿namespace ParserLib.Json.Internal
+﻿using System;
+
+namespace ParserLib.Json.Internal
 {
-	internal abstract class WriteControl : IControl
+	internal abstract class WriteControl : IDisposable
 	{
 		#region Properties
 		protected WriterOptions Options { get; }

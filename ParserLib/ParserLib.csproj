@@ -70,7 +70,6 @@
     <Compile Include="Json\Exceptions\UnexpectedEndException.cs" />
     <Compile Include="Json\Exceptions\ValueParseException.cs" />
     <Compile Include="Json\Internal\FileWriteControl.cs" />
-    <Compile Include="Json\Internal\IControl.cs" />
     <Compile Include="Json\Internal\ReadControl.cs" />
     <Compile Include="Json\Internal\FileReadControl.cs" />
     <Compile Include="Json\IJsonRoot.cs" />

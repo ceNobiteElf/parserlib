@@ -15,7 +15,7 @@
 
 
 		#region Constructors
-		public ReadControl(ReaderOptions options)
+		protected ReadControl(ReaderOptions options)
 		{
 			Options = options ?? new ReaderOptions();
 		}

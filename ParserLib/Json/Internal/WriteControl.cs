@@ -27,7 +27,7 @@
 
 
 		#region Constructors
-		public WriteControl(WriterOptions options)
+		protected WriteControl(WriterOptions options)
 		{
 			Options = options ?? new WriterOptions();
 

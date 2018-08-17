@@ -123,6 +123,19 @@ namespace ParserLib.Json
 		static bool IsEndOfLiteral(char currentCharacter)
 			=> char.IsWhiteSpace(currentCharacter) || LiteralTerminators.Contains(currentCharacter);
 
+		static string GetLiteral(ReadControl control)
+		{
+			var value = new StringBuilder();
+			value.Append(control.CurrentCharacter);
+
+			while (!IsEndOfLiteral(control.NextCharacter))
+			{
+				value.Append(control.Read());
+			}
+
+			return value.ToString();
+		}
+
 		static JsonObject ParseObject(ReadControl control)
 		{
 			var obj = new JsonObject();
@@ -313,37 +326,21 @@ namespace ParserLib.Json
 
 		static JsonNumber ParseNumber(ReadControl control)
 		{
-			var value = new StringBuilder();
-			value.Append(control.CurrentCharacter);
+			var value = GetLiteral(control);
 
-			while (!IsEndOfLiteral(control.NextCharacter))
-			{
-				value.Append(control.Read());
-			}
-
-			string rawValue = value.ToString();
-
-			if (double.TryParse(rawValue, NumberStyles.Float, CultureInfo.InvariantCulture, out double result))
+			if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double result))
 			{
 				return new JsonNumber(result);
 			}
 
-			throw new ValueParseException(rawValue, typeof(JsonNumber));
+			throw new ValueParseException(value, typeof(JsonNumber));
 		}
 
 		static JsonBool ParseBool(ReadControl control)
 		{
-			var value = new StringBuilder();
-			value.Append(control.CurrentCharacter);
+			var value = GetLiteral(control);
 
-			while (!IsEndOfLiteral(control.NextCharacter))
-			{
-				value.Append(control.Read());
-			}
-
-			string rawValue = value.ToString();
-
-			switch (rawValue)
+			switch (value)
 			{
 				case "true":
 					return true;
@@ -352,29 +349,23 @@ namespace ParserLib.Json
 					return false;
 
 				default:
-					throw new ValueParseException(rawValue, typeof(JsonBool));
+					throw new ValueParseException(value, typeof(JsonBool));
 			}
 		}
 
 		static JsonNull ParseNull(ReadControl control)
 		{
-			var value = new StringBuilder();
-			value.Append(control.CurrentCharacter);
+			string value = GetLiteral(control);
 
-			while (!IsEndOfLiteral(control.NextCharacter))
-			{
-				value.Append(control.Read());
-			}
-
-			string rawValue = value.ToString();
-
-			if (rawValue.Equals("null"))
+			if (value.Equals("null"))
 			{
 				return JsonNull.Value;
 			}
 
-			throw new ValueParseException(rawValue, typeof(JsonNull));
+			throw new ValueParseException(value, typeof(JsonNull));
 		}
+
+
 		#endregion
 	}
 }

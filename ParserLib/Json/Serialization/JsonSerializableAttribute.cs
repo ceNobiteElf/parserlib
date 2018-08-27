@@ -2,15 +2,15 @@
 
 namespace ParserLib.Json.Serialization
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
 	public class JsonSerializableAttribute : Attribute
 	{
-		#region PROPERTIES
+		#region Properties
 		public SerializationMode Mode { get; }
 		#endregion
 
 
-		#region CONSTRUCTORS
+		#region Constructors
 		public JsonSerializableAttribute()
 			: this(SerializationMode.All) { }
 

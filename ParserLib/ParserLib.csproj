@@ -69,18 +69,21 @@
     <Compile Include="Json\Exceptions\MultipleRootsException.cs" />
     <Compile Include="Json\Exceptions\UnexpectedEndException.cs" />
     <Compile Include="Json\Exceptions\ValueParseException.cs" />
-    <Compile Include="Json\Internal\FileWriteControl.cs" />
-    <Compile Include="Json\Internal\ReadControl.cs" />
-    <Compile Include="Json\Internal\FileReadControl.cs" />
+    <Compile Include="Internal\FileWriteControl.cs" />
+    <Compile Include="Internal\ReadControl.cs" />
+    <Compile Include="Internal\FileReadControl.cs" />
     <Compile Include="Json\IJsonRoot.cs" />
-    <Compile Include="Json\Internal\StringReadControl.cs" />
-    <Compile Include="Json\Internal\StringWriteControl.cs" />
-    <Compile Include="Json\Internal\WriteControl.cs" />
+    <Compile Include="Internal\StringReadControl.cs" />
+    <Compile Include="Internal\StringWriteControl.cs" />
+    <Compile Include="Internal\WriteControl.cs" />
     <Compile Include="Json\Exceptions\InvalidKeyException.cs" />
     <Compile Include="Json\JsonArray.cs" />
     <Compile Include="Json\JsonBool.cs" />
     <Compile Include="Json\JsonElement.cs" />
     <Compile Include="Json\JsonException.cs" />
+    <Compile Include="Json\JsonReaderOptions.cs" />
+    <Compile Include="Json\JsonWriterOptions.cs" />
+    <Compile Include="Json\Serialization\JsonPropertyAttribute.cs" />
     <Compile Include="Json\Serialization\JsonSerializableAttribute.cs" />
     <Compile Include="Json\Serialization\JsonSerializer.cs" />
     <Compile Include="Json\JsonNumber.cs" />
@@ -90,10 +93,10 @@
     <Compile Include="Json\JsonParser.cs" />
     <Compile Include="Json\JsonWriter.cs" />
     <Compile Include="Json\MultipleRootsBehaviour.cs" />
-    <Compile Include="Json\ReaderOptions.cs" />
+    <Compile Include="ReaderOptions.cs" />
     <Compile Include="Json\Exceptions\UnexpectedTokenException.cs" />
     <Compile Include="Json\Serialization\SerializationMode.cs" />
-    <Compile Include="Json\WriterOptions.cs" />
+    <Compile Include="WriterOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace ParserLib.Json
+namespace ParserLib
 {
-	public sealed class WriterOptions
+	public class WriterOptions
 	{
 		#region Properties
 		/// <summary>

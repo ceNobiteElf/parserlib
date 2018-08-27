@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace ParserLib.Json.Internal
+namespace ParserLib.Internal
 {
-	internal abstract class WriteControl : IDisposable
+	internal abstract class WriteControl<TWriterOptions> : IDisposable where TWriterOptions : WriterOptions, new()
 	{
 		#region Properties
-		protected WriterOptions Options { get; }
+		public TWriterOptions Options { get; }
 
 		public bool ForceAscii { get => Options.ForceAscii; }
 
@@ -29,9 +29,9 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		protected WriteControl(WriterOptions options)
+		protected WriteControl(TWriterOptions options)
 		{
-			Options = options ?? new WriterOptions();
+			Options = options ?? new TWriterOptions();
 
 			IndentationLevel = 0;
 		}

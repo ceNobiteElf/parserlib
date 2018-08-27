@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-using ParserLib.Json.Internal;
+using ParserLib.Internal;
+using WriteControl = ParserLib.Internal.WriteControl<ParserLib.Json.JsonWriterOptions>;
 
 namespace ParserLib.Json
 {
@@ -43,20 +44,20 @@ namespace ParserLib.Json
 			=> WriteToFile(filePath, json, null);
 
 		public static void WriteToFile(string filePath, JsonElement json, bool prettyPrint)
-			=> WriteToFile(filePath, json, new WriterOptions { PrettyPrint = prettyPrint });
+			=> WriteToFile(filePath, json, new JsonWriterOptions { PrettyPrint = prettyPrint });
 
-		public static void WriteToFile(string filePath, JsonElement json, WriterOptions options)
-			=> Write(new FileWriteControl(filePath, options), json);
+		public static void WriteToFile(string filePath, JsonElement json, JsonWriterOptions options)
+			=> Write(new FileWriteControl<JsonWriterOptions>(filePath, options), json);
 
 		public static string WriteToString(JsonElement json)
 			=> WriteToString(json, null);
 
 		public static string WriteToString(JsonElement json, bool prettyPrint)
-			=> WriteToString(json, new WriterOptions { PrettyPrint = prettyPrint });
+			=> WriteToString(json, new JsonWriterOptions { PrettyPrint = prettyPrint });
 
-		public static string WriteToString(JsonElement json, WriterOptions options)
+		public static string WriteToString(JsonElement json, JsonWriterOptions options)
 		{
-			var control = new StringWriteControl(options);
+			var control = new StringWriteControl<JsonWriterOptions>(options);
 
 			Write(control, json);
 

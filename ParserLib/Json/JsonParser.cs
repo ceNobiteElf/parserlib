@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
+using ParserLib.Internal;
 using ParserLib.Json.Exceptions;
-using ParserLib.Json.Internal;
+using ReadControl = ParserLib.Internal.ReadControl<ParserLib.Json.JsonReaderOptions>;
 
 namespace ParserLib.Json
 {
@@ -48,14 +49,14 @@ namespace ParserLib.Json
 		public static T ParseFromFile<T>(string filePath) where T : JsonElement, IJsonRoot
 			=> ParseFromFile(filePath, null) as T;
 
-		public static T ParseFromFile<T>(string filePath, ReaderOptions options) where T : JsonElement, IJsonRoot
+		public static T ParseFromFile<T>(string filePath, JsonReaderOptions options) where T : JsonElement, IJsonRoot
 			=> ParseFromFile(filePath, options) as T;
 
 		public static JsonElement ParseFromFile(string filePath)
 			=> ParseFromFile(filePath, null);
 
-		public static JsonElement ParseFromFile(string filePath, ReaderOptions options)
-			=> Parse(new FileReadControl(filePath, options));
+		public static JsonElement ParseFromFile(string filePath, JsonReaderOptions options)
+			=> Parse(new FileReadControl<JsonReaderOptions>(filePath, options));
 		#endregion
 
 
@@ -63,14 +64,14 @@ namespace ParserLib.Json
 		public static T ParseFromString<T>(string rawJson) where T : JsonElement, IJsonRoot
 			=> ParseFromString(rawJson, null) as T;
 
-		public static T ParseFromString<T>(string rawJson, ReaderOptions options) where T : JsonElement, IJsonRoot
+		public static T ParseFromString<T>(string rawJson, JsonReaderOptions options) where T : JsonElement, IJsonRoot
 			=> ParseFromString(rawJson, options) as T;
 
 		public static JsonElement ParseFromString(string rawJson)
 			=> ParseFromString(rawJson, null);
 
-		public static JsonElement ParseFromString(string rawJson, ReaderOptions options)
-			=> Parse(new StringReadControl(rawJson, options));
+		public static JsonElement ParseFromString(string rawJson, JsonReaderOptions options)
+			=> Parse(new StringReadControl<JsonReaderOptions>(rawJson, options));
 		#endregion
 
 
@@ -91,7 +92,7 @@ namespace ParserLib.Json
 						{	
 							result = parser.Invoke(control);
 						}
-						else if (control.MultipleRootsBehaviour == MultipleRootsBehaviour.ThrowException)
+						else if (control.Options.MultipleRootsBehaviour == MultipleRootsBehaviour.ThrowException)
 						{
 							throw new MultipleRootsException();
 						}
@@ -100,7 +101,7 @@ namespace ParserLib.Json
 			}
 			catch (Exception)
 			{
-				if (control.NullOnExceptions)
+				if (control.Options.NullOnExceptions)
 				{
 					result = null;
 				}
@@ -192,7 +193,7 @@ namespace ParserLib.Json
 					{
 						if (obj.ContainsKey(currentKey))
 						{
-							switch (control.DuplicateKeyBehaviour)
+							switch (control.Options.DuplicateKeyBehaviour)
 							{
 								case DuplicateKeyBehaviour.Overwrite:
 									obj[currentKey] = currentValue;

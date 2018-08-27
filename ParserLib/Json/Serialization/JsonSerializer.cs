@@ -98,7 +98,15 @@ namespace ParserLib.Json.Serialization
 			Type objType = source.GetType();
 			bool isAnonymous = IsAnonymous(objType);
 
-			BindingFlags bindings = true /*serializationMode == SerializationMode.Public*/ ? BindingAll : BindingPublic;
+			var jsonSerializableAttribute = objType.GetCustomAttribute<JsonSerializableAttribute>();
+			bool optInOnly = jsonSerializableAttribute?.Mode == SerializationMode.OptIn;
+
+			if (!isAnonymous && jsonSerializableAttribute == null)
+			{
+				return null;
+			}
+
+			BindingFlags bindings = isAnonymous || jsonSerializableAttribute.Mode != SerializationMode.Public ? BindingAll : BindingPublic;
 			IEnumerable<MemberInfo> members = objType.GetProperties(bindings);
 
 			if (!isAnonymous)
@@ -110,11 +118,15 @@ namespace ParserLib.Json.Serialization
 
 			foreach (MemberInfo member in members)
 			{
-				if (member.GetCustomAttribute<CompilerGeneratedAttribute>() != null)
+				var jsonPropertyAttribute = member.GetCustomAttribute<JsonPropertyAttribute>();
+
+				if (member.GetCustomAttribute<CompilerGeneratedAttribute>() != null
+					|| (optInOnly && jsonPropertyAttribute == null))
 				{
 					continue;
 				}
 
+				string memberName = jsonPropertyAttribute?.Name ?? member.Name;
 				Type memberType = null;
 				object value = null;
 
@@ -138,9 +150,9 @@ namespace ParserLib.Json.Serialization
 				{
 					JsonElement json = SerializeField(memberType, value);
 
-					if (json != null && !(json is JsonArray array && array.Count == 0) && !(json is JsonObject obj && obj.Count == 0))
+					if (json != null && !(json is JsonObject obj && obj.Count == 0))
 					{
-						jsonObject.Add(member.Name, json);
+						jsonObject.Add(memberName, json);
 					}
 				}
 			}
@@ -156,7 +168,7 @@ namespace ParserLib.Json.Serialization
 			{
 				JsonElement json = SerializeField(element?.GetType(), element);
 
-				if (!(json is JsonObject obj && obj.Count == 0))
+				if (json != null && !(json is JsonObject obj && obj.Count == 0))
 				{
 					jsonArray.Add(json);
 				}

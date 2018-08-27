@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace ParserLib.Json.Internal
+namespace ParserLib.Internal
 {
-	internal sealed class FileWriteControl : WriteControl
+	internal sealed class FileWriteControl<TWriterOptions> : WriteControl<TWriterOptions> where TWriterOptions : WriterOptions, new()
 	{
 		#region Properties
 		public string FilePath { get; }
@@ -13,7 +13,7 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public FileWriteControl(string filePath, WriterOptions options)
+		public FileWriteControl(string filePath, TWriterOptions options)
 			: base(options)
 		{
 			var fileInfo = new FileInfo(filePath);

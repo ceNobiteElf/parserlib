@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace ParserLib.Json.Internal
+namespace ParserLib.Internal
 {
-	internal sealed class StringWriteControl : WriteControl
+	internal sealed class StringWriteControl<TWriterOptions> : WriteControl<TWriterOptions> where TWriterOptions : WriterOptions, new()
 	{
 		#region Properties
 		public string FilePath { get; }
@@ -13,7 +13,7 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public StringWriteControl(WriterOptions options)
+		public StringWriteControl(TWriterOptions options)
 			: base(options)
 		{
 			Builder = new StringBuilder();

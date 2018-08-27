@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-namespace ParserLib.Json.Internal
+namespace ParserLib.Internal
 {
-	internal sealed class FileReadControl : ReadControl
+	internal sealed class FileReadControl<TReaderOptions> : ReadControl<TReaderOptions> where TReaderOptions : ReaderOptions, new()
 	{
 		#region Properties
 		public string FilePath { get; } 
@@ -19,7 +19,7 @@ namespace ParserLib.Json.Internal
 
 
 		#region Constructors
-		public FileReadControl(string filePath, ReaderOptions options)
+		public FileReadControl(string filePath, TReaderOptions options)
 			: base (options)
 		{
 			var fileInfo = new FileInfo(filePath);

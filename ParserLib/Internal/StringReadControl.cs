@@ -1,19 +1,19 @@
-﻿namespace ParserLib.Json.Internal
+﻿namespace ParserLib.Internal
 {
-	internal sealed class StringReadControl : ReadControl
+	internal sealed class StringReadControl<TReaderOptions> : ReadControl<TReaderOptions> where TReaderOptions : ReaderOptions, new()
 	{
 		#region Properties
-		public string RawJson { get; }
+		public string RawInput { get; }
 
 		public int ReadHead { get; private set; }
 		#endregion
 
 
 		#region Constructors
-		public StringReadControl(string rawJson, ReaderOptions options)
+		public StringReadControl(string rawInput, TReaderOptions options)
 			: base(options)
 		{
-			RawJson = rawJson ?? string.Empty;
+			RawInput = rawInput ?? string.Empty;
 		}
 		#endregion
 
@@ -33,7 +33,7 @@
 
 		#region Helper Functions
 		char ReadCharacter(int index)
-			=> ReadHead < RawJson.Length ? RawJson[index] : '\0';
+			=> ReadHead < RawInput.Length ? RawInput[index] : '\0';
 		#endregion
 	}
 }

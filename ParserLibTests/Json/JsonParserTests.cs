@@ -22,7 +22,7 @@ namespace ParserLibTests.Json
 		{
 			string jsonString = "{'name': 'Quarter', ";
 
-			var result = JsonParser.ParseFromString(jsonString, new ReaderOptions { NullOnExceptions = true });
+			var result = JsonParser.ParseFromString(jsonString, new JsonReaderOptions { NullOnExceptions = true });
 
 			Assert.IsNull(result);
 		}
@@ -32,7 +32,7 @@ namespace ParserLibTests.Json
 		{
 			string jsonString = "{'name': 'Quarter', ";
 
-			var result = JsonParser.ParseFromString<JsonObject>(jsonString, new ReaderOptions { NullOnExceptions = true });
+			var result = JsonParser.ParseFromString<JsonObject>(jsonString, new JsonReaderOptions { NullOnExceptions = true });
 
 			Assert.IsNull(result);
 		}
@@ -42,7 +42,7 @@ namespace ParserLibTests.Json
 		{
 			string jsonString = "['first'] ['second']";
 
-			JsonParser.ParseFromString(jsonString, new ReaderOptions { MultipleRootsBehaviour = MultipleRootsBehaviour.ThrowException });
+			JsonParser.ParseFromString(jsonString, new JsonReaderOptions { MultipleRootsBehaviour = MultipleRootsBehaviour.ThrowException });
 		}
 
 		[TestMethod, TestCategory("JsonParser - General")]
@@ -50,7 +50,7 @@ namespace ParserLibTests.Json
 		{
 			string jsonString = "['first'] ['second']";
 
-			var result = JsonParser.ParseFromString<JsonArray>(jsonString, new ReaderOptions { MultipleRootsBehaviour = MultipleRootsBehaviour.ReturnFirst });
+			var result = JsonParser.ParseFromString<JsonArray>(jsonString, new JsonReaderOptions { MultipleRootsBehaviour = MultipleRootsBehaviour.ReturnFirst });
 
 			Assert.AreEqual(1, result.Count);
 			Assert.AreEqual("first", (string)result[0]);
@@ -100,7 +100,7 @@ namespace ParserLibTests.Json
 		{
 			string jsonString = "{'name': 'First', 'name': 'Second'}";
 
-			JsonParser.ParseFromString(jsonString, new ReaderOptions { DuplicateKeyBehaviour = DuplicateKeyBehaviour.ThrowException });
+			JsonParser.ParseFromString(jsonString, new JsonReaderOptions { DuplicateKeyBehaviour = DuplicateKeyBehaviour.ThrowException });
 		}
 
 		[TestMethod, TestCategory("JsonParser - Parse JsonObject")]
@@ -108,7 +108,7 @@ namespace ParserLibTests.Json
 		{
 			string jsonString = "{'name': 'First', 'name': 'Second'}";
 
-			var result = JsonParser.ParseFromString<JsonObject>(jsonString, new ReaderOptions { DuplicateKeyBehaviour = DuplicateKeyBehaviour.Ignore });
+			var result = JsonParser.ParseFromString<JsonObject>(jsonString, new JsonReaderOptions { DuplicateKeyBehaviour = DuplicateKeyBehaviour.Ignore });
 
 			Assert.AreEqual(1, result.Count);
 			Assert.AreEqual("First", (string)result["name"]);
@@ -119,7 +119,7 @@ namespace ParserLibTests.Json
 		{
 			string jsonString = "{'name': 'First', 'name': 'Second'}";
 
-			var result = JsonParser.ParseFromString<JsonObject>(jsonString, new ReaderOptions { DuplicateKeyBehaviour = DuplicateKeyBehaviour.Overwrite });
+			var result = JsonParser.ParseFromString<JsonObject>(jsonString, new JsonReaderOptions { DuplicateKeyBehaviour = DuplicateKeyBehaviour.Overwrite });
 
 			Assert.AreEqual(1, result.Count);
 			Assert.AreEqual("Second", (string)result["name"]);

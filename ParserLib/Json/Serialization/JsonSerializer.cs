@@ -9,6 +9,99 @@ namespace ParserLib.Json.Serialization
 {
 	public static class JsonSerializer
 	{
+		#region Nested Types
+		private sealed class ClassAttributes
+		{
+			public JsonSerializableAttribute SerializationAttributes { get; }
+			public bool IsAnonymous { get; }
+
+			public SerializationMode SerializationMode { get; }
+			public bool IsOptInOnly { get; }
+			public bool IsSerializable { get; }
+
+			public BindingFlags Binding { get; }
+
+			public ClassAttributes(JsonSerializableAttribute serializationAttributes, bool isAnonymous)
+			{
+				SerializationAttributes = serializationAttributes;
+				IsAnonymous = isAnonymous;
+
+				SerializationMode = IsAnonymous ? SerializationMode.All : (SerializationAttributes?.Mode ?? SerializationMode.All);
+				IsOptInOnly = !IsAnonymous && SerializationMode == SerializationMode.OptIn;
+				IsSerializable = IsAnonymous || SerializationAttributes != null;
+
+				if (IsSerializable)
+				{
+					Binding = SerializationMode == SerializationMode.Public ? BindingPublic : BindingAll;
+				}
+			}
+		}
+
+		private interface ISerializableMember
+		{
+			string Name { get; }
+			Type Type { get; }
+
+			object GetValue(object source);
+			void SetValue(object source, object value);
+		}
+
+		private abstract class SerializableMember<T> : ISerializableMember where T : MemberInfo
+		{
+			protected T BackingMemberInfo { get; set; }
+
+			public string Name { get; protected set; }
+			public abstract Type Type { get; }
+
+			protected SerializableMember(T backingMemberInfo)
+				: this(backingMemberInfo, GetMemberName(backingMemberInfo)) { }
+
+			protected SerializableMember(T backingMemberInfo, string name)
+			{
+				BackingMemberInfo = backingMemberInfo;
+				Name = name;
+			}
+
+			public abstract object GetValue(object source);
+			public abstract void SetValue(object source, object value);
+		}
+
+		private sealed class FieldMember : SerializableMember<FieldInfo>
+		{
+			public override Type Type { get => BackingMemberInfo.FieldType; }
+
+			public FieldMember(FieldInfo backingMemberInfo)
+				: base(backingMemberInfo) { }
+
+			public FieldMember(FieldInfo backingMemberInfo, string name)
+				: base(backingMemberInfo, name) { }
+
+			public override object GetValue(object source)
+				=> BackingMemberInfo.GetValue(source);
+
+			public override void SetValue(object source, object value)
+				=> BackingMemberInfo.SetValue(source, value);
+		}
+
+		private sealed class PropertyMember : SerializableMember<PropertyInfo>
+		{
+			public override Type Type { get => BackingMemberInfo.PropertyType; }
+
+			public PropertyMember(PropertyInfo backingMemberInfo)
+				: base(backingMemberInfo) { }
+
+			public PropertyMember(PropertyInfo backingMemberInfo, string name)
+				: base(backingMemberInfo, name) { }
+
+			public override object GetValue(object source)
+				=> BackingMemberInfo.GetValue(source);
+
+			public override void SetValue(object source, object value)
+				=> BackingMemberInfo.SetValue(source, value);
+		}
+		#endregion
+
+
 		#region Constants
 		private const BindingFlags BindingAll = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		private const BindingFlags BindingPublic = BindingFlags.Instance | BindingFlags.Public;
@@ -54,16 +147,112 @@ namespace ParserLib.Json.Serialization
 
 			return JsonWriter.WriteToString(root, true);
 		}
+
+		public static T DeserializeFromString<T>(string rawJson)
+			=> (T)DeserializeFromString(typeof(T), rawJson);
+
+		public static object DeserializeFromString(Type targetType, string rawJson)
+		{
+			return DeserializeFromJsonElement(targetType, JsonParser.ParseFromString(rawJson));
+		}
+
+		public static T DeserializeFromFile<T>(string filePath)
+			=> (T)DeserializeFromFile(typeof(T), filePath);
+
+		public static object DeserializeFromFile(Type targetType, string filePath)
+		{
+			return DeserializeFromJsonElement(targetType, JsonParser.ParseFromFile(filePath)); ;
+		}
+
+		public static T DeserializeFromJsonElement<T>(JsonElement json)
+			=> (T)DeserializeFromJsonElement(typeof(T), json);
+
+		public static object DeserializeFromJsonElement(Type target, JsonElement json)
+		{
+			return Deserialize(target, json);
+		}
 		#endregion
 
 
-		#region Helper Functions
+		#region Helper Functions - General
+		static string GetMemberName(MemberInfo member)
+			=> member.GetCustomAttribute<JsonPropertyAttribute>()?.Name ?? member.Name;
+
+		static bool IsAnonymous(Type objType)
+			=> objType.IsGenericType && objType.IsClass && objType.IsSealed
+				&& objType.Attributes.HasFlag(TypeAttributes.NotPublic) && objType.GetCustomAttribute<CompilerGeneratedAttribute>() != null;
+
 		static bool IsAutoProperty(PropertyInfo property)
 			=> property.CanRead && property.CanWrite && property.GetGetMethod(true).IsDefined(typeof(CompilerGeneratedAttribute), true);
+		#endregion
 
-		static bool IsAnonymous(Type type)
-			=> type.IsGenericType && type.IsClass && type.IsSealed 
-				&& type.Attributes.HasFlag(TypeAttributes.NotPublic) && type.GetCustomAttribute<CompilerGeneratedAttribute>() != null;
+
+		#region Helper Functions - Serialization
+		static bool IsSerializable(PropertyInfo property, ClassAttributes classAttributes)
+		{
+			bool result = false;
+
+			if (classAttributes.IsAnonymous)
+			{
+				result = true;
+			}
+			else if (classAttributes.IsOptInOnly)
+			{
+				result = property.IsDefined(typeof(JsonPropertyAttribute), true);
+			}
+			else
+			{
+				result = !property.IsDefined(typeof(CompilerGeneratedAttribute)) && property.CanRead;
+			}
+
+			return result;
+		}
+
+		static bool IsSerializable(FieldInfo field, ClassAttributes classAttributes)
+		{
+			bool result = false;
+
+			if (!classAttributes.IsAnonymous)
+			{
+				result = !field.IsDefined(typeof(CompilerGeneratedAttribute));
+
+				if (classAttributes.IsOptInOnly)
+				{
+					result = result && field.IsDefined(typeof(JsonPropertyAttribute), true);
+				}
+			}
+
+			return result;
+		}
+
+		static IEnumerable<ISerializableMember> GetSerializableMembers(Type objType)
+		{
+			var classAttributes = new ClassAttributes(objType.GetCustomAttribute<JsonSerializableAttribute>(), IsAnonymous(objType));
+			var members = new List<ISerializableMember>();
+
+			if (!classAttributes.IsSerializable)
+			{
+				return members;
+			}
+
+			foreach (PropertyInfo property in objType.GetProperties(classAttributes.Binding))
+			{
+				if (IsSerializable(property, classAttributes))
+				{
+					members.Add(new PropertyMember(property));
+				}
+			}
+
+			foreach (FieldInfo field in objType.GetFields(classAttributes.Binding))
+			{
+				if (IsSerializable(field, classAttributes))
+				{
+					members.Add(new FieldMember(field));
+				}
+			}
+
+			return members;
+		}
 
 		static JsonElement SerializeField(Type fieldType, object source)
 		{
@@ -95,65 +284,15 @@ namespace ParserLib.Json.Serialization
 
 		static JsonObject SerializeObject(object source)
 		{
-			Type objType = source.GetType();
-			bool isAnonymous = IsAnonymous(objType);
-
-			var jsonSerializableAttribute = objType.GetCustomAttribute<JsonSerializableAttribute>();
-			bool optInOnly = jsonSerializableAttribute?.Mode == SerializationMode.OptIn;
-
-			if (!isAnonymous && jsonSerializableAttribute == null)
-			{
-				return null;
-			}
-
-			BindingFlags bindings = isAnonymous || jsonSerializableAttribute.Mode != SerializationMode.Public ? BindingAll : BindingPublic;
-			IEnumerable<MemberInfo> members = objType.GetProperties(bindings);
-
-			if (!isAnonymous)
-			{
-				members = members.Concat(objType.GetFields(bindings));
-			}
-
 			var jsonObject = new JsonObject();
 
-			foreach (MemberInfo member in members)
+			foreach (ISerializableMember member in GetSerializableMembers(source.GetType()))
 			{
-				var jsonPropertyAttribute = member.GetCustomAttribute<JsonPropertyAttribute>();
+				JsonElement json = SerializeField(member.Type, member.GetValue(source));
 
-				if (member.GetCustomAttribute<CompilerGeneratedAttribute>() != null
-					|| (optInOnly && jsonPropertyAttribute == null))
+				if (json != null && !(json is JsonObject obj && obj.Count == 0))
 				{
-					continue;
-				}
-
-				string memberName = jsonPropertyAttribute?.Name ?? member.Name;
-				Type memberType = null;
-				object value = null;
-
-				if (member is PropertyInfo property)
-				{
-					if (!isAnonymous && !IsAutoProperty(property))
-					{
-						continue;
-					}
-
-					memberType = property.PropertyType;
-					value = property.GetValue(source);
-				}
-				else if (member is FieldInfo field)
-				{
-					memberType = field.FieldType;
-					value = field.GetValue(source);
-				}
-
-				if (memberType != null)
-				{
-					JsonElement json = SerializeField(memberType, value);
-
-					if (json != null && !(json is JsonObject obj && obj.Count == 0))
-					{
-						jsonObject.Add(memberName, json);
-					}
+					jsonObject.Add(member.Name, json);
 				}
 			}
 
@@ -175,6 +314,56 @@ namespace ParserLib.Json.Serialization
 			}
 				
 			return jsonArray;
+		}
+		#endregion
+
+
+		#region Helper Functions - Deserialization
+		static object Deserialize(Type target, JsonElement json)
+		{
+			// TODO finish
+
+			return null;
+		}
+
+		static object DeserializeField(Type target, JsonElement json)
+		{
+			// TODO finish
+
+			object result;
+
+			if (json is JsonNull)
+			{
+				result = null;
+			}
+			else
+			{
+				result = null;
+			}
+
+			return result;
+		}
+
+		static object DeserializeObject(Type target, JsonObject json)
+		{
+			IEnumerable<ISerializableMember> deserializableMembers = new List<ISerializableMember>();
+
+			// TODO get all deserializable members
+
+			IDictionary<string, object> constructorParameters = new Dictionary<string, object>();
+			// TODO figure out which constructor to use and add the values to the constructor parameters.
+
+			object result = Activator.CreateInstance(target, constructorParameters.Values.ToArray());
+
+			foreach (ISerializableMember member in deserializableMembers)
+			{
+				if (!constructorParameters.ContainsKey(member.Name) && json.ContainsKey(member.Name))
+				{
+					member.SetValue(result, DeserializeField(member.Type, json[member.Name]));
+				}
+			}
+
+			return result;
 		}
 		#endregion
 	}

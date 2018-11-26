@@ -80,6 +80,7 @@
     <Compile Include="Json\JsonWriterTests.cs" />
     <Compile Include="Json\JsonArrayTests.cs" />
     <Compile Include="Json\JsonNumberTests.cs" />
+    <Compile Include="Json\Serialization\JsonSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,7 +12,7 @@ namespace ParserLib.Json.Serialization
 
 		#region Constructors
 		public JsonSerializableAttribute()
-			: this(SerializationMode.All) { }
+			: this(SerializationMode.Public) { }
 
 		public JsonSerializableAttribute(SerializationMode mode)
 		{

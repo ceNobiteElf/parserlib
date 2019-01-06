@@ -3,7 +3,7 @@
 ParserLib is a C# library containing implementations of parsers for various text-based data interchange formats. The project started due to frustration with a certain programming environment that will not be named's substandard JSON library.
 
 ## ParserLib.Json
-Currently ParserLib fully supports JSON parsing from strings and files and is standards compliant. There are common deviations that are supported, such as the use of single quotation marks (`'`'), however date parsing is wholly unsupported. 
+Currently ParserLib fully supports JSON parsing from strings and files and is standards compliant. There are common deviations that are supported, such as the use of single quotation marks (`'`), however date parsing is wholly unsupported. 
 
 Note that object serialization and deserialization is still very rudimentary and not fully supported.
 

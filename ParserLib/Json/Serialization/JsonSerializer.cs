@@ -136,7 +136,7 @@ namespace ParserLib.Json.Serialization
 			=> Serialize(source, false);
 
 		public static string Serialize(object source, bool prettyPrint)
-			=> Serialize(source, new JsonWriterOptions() { PrettyPrint = prettyPrint });
+			=> Serialize(source, new JsonWriterOptions { PrettyPrint = prettyPrint });
 
 		public static string Serialize(object source, JsonWriterOptions options)
 		{
@@ -347,7 +347,7 @@ namespace ParserLib.Json.Serialization
 						break;
 
 					case JsonNumber jsonNumber:
-						result = target == typeof(double) ? result = jsonNumber.Value : Convert.ChangeType(jsonNumber.Value, target);
+						result = target == typeof(double) ? jsonNumber.Value : Convert.ChangeType(jsonNumber.Value, target);
 						break;
 
 					case JsonString jsonString:
@@ -363,7 +363,6 @@ namespace ParserLib.Json.Serialization
 						break;
 
 					default:
-					case JsonNull _:
 						result = null;
 						break;
 				}

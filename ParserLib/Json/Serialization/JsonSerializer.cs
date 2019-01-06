@@ -133,6 +133,12 @@ namespace ParserLib.Json.Serialization
 
 		#region Public API
 		public static string Serialize(object source)
+			=> Serialize(source, false);
+
+		public static string Serialize(object source, bool prettyPrint)
+			=> Serialize(source, new JsonWriterOptions() { PrettyPrint = prettyPrint });
+
+		public static string Serialize(object source, JsonWriterOptions options)
 		{
 			JsonElement root = null;
 
@@ -145,32 +151,27 @@ namespace ParserLib.Json.Serialization
 				root = SerializeObject(source);
 			}
 
-			return JsonWriter.WriteToString(root, true);
+			return JsonWriter.WriteToString(root, options);
 		}
 
 		public static T DeserializeFromString<T>(string rawJson)
 			=> (T)DeserializeFromString(typeof(T), rawJson);
 
 		public static object DeserializeFromString(Type targetType, string rawJson)
-		{
-			return DeserializeFromJsonElement(targetType, JsonParser.ParseFromString(rawJson));
-		}
+			=> DeserializeFromJsonElement(targetType, JsonParser.ParseFromString(rawJson));
 
 		public static T DeserializeFromFile<T>(string filePath)
 			=> (T)DeserializeFromFile(typeof(T), filePath);
 
 		public static object DeserializeFromFile(Type targetType, string filePath)
-		{
-			return DeserializeFromJsonElement(targetType, JsonParser.ParseFromFile(filePath)); ;
-		}
+			=> DeserializeFromJsonElement(targetType, JsonParser.ParseFromFile(filePath));
 
 		public static T DeserializeFromJsonElement<T>(JsonElement json)
 			=> (T)DeserializeFromJsonElement(typeof(T), json);
 
+		[Obsolete("Deserialization is not yet production-ready and for now quite error prone.")]
 		public static object DeserializeFromJsonElement(Type target, JsonElement json)
-		{
-			return Deserialize(target, json);
-		}
+			=> Deserialize(target, json);
 		#endregion
 
 
@@ -266,6 +267,10 @@ namespace ParserLib.Json.Serialization
 			{
 				result = (JsonElement)source;
 			}
+			else if (fieldType.IsEnum)
+			{
+				result = (JsonNumber)(int)source;
+			}
 			else if (JsonCastLookup.TryGetValue(fieldType, out Func<object, JsonElement> castToJson))
 			{
 				result = castToJson(source);
@@ -321,49 +326,78 @@ namespace ParserLib.Json.Serialization
 		#region Helper Functions - Deserialization
 		static object Deserialize(Type target, JsonElement json)
 		{
-			// TODO finish
-
-			return null;
+			return DeserializeField(target, json);
 		}
 
 		static object DeserializeField(Type target, JsonElement json)
 		{
-			// TODO finish
-
 			object result;
 
-			if (json is JsonNull)
+			// TODO Target type needs to be used better. And add provisioning for enums.
+			if (target.IsSubclassOf(typeof(JsonElement)))
 			{
-				result = null;
+				result = json;
 			}
 			else
 			{
-				result = null;
+				switch (json)
+				{
+					case JsonBool jsonBool:
+						result = jsonBool.Value;
+						break;
+
+					case JsonNumber jsonNumber:
+						result = target == typeof(double) ? result = jsonNumber.Value : Convert.ChangeType(jsonNumber.Value, target);
+						break;
+
+					case JsonString jsonString:
+						result = jsonString.Value;
+						break;
+
+					case JsonArray jsonArray:
+						result = DeserializeArray(target, jsonArray);
+						break;
+
+					case JsonObject jsonObject:
+						result = DeserializeObject(target, jsonObject);
+						break;
+
+					default:
+					case JsonNull _:
+						result = null;
+						break;
+				}
 			}
 
 			return result;
 		}
 
-		static object DeserializeObject(Type target, JsonObject json)
+		static object DeserializeObject(Type target, JsonObject jsonObject)
 		{
+			// TODO Get all deserializable members. Not the same as serializable members since a serializable property might not have a setter and we need to rely on a constructor to set this state.
 			IEnumerable<ISerializableMember> deserializableMembers = new List<ISerializableMember>();
 
-			// TODO get all deserializable members
-
+			// TODO Figure out which constructor to use and add the values to the constructor parameters. Will later add a JsonConstructor attribute to indicate this.
 			IDictionary<string, object> constructorParameters = new Dictionary<string, object>();
-			// TODO figure out which constructor to use and add the values to the constructor parameters.
 
 			object result = Activator.CreateInstance(target, constructorParameters.Values.ToArray());
 
 			foreach (ISerializableMember member in deserializableMembers)
 			{
-				if (!constructorParameters.ContainsKey(member.Name) && json.ContainsKey(member.Name))
+				if (!constructorParameters.ContainsKey(member.Name) && jsonObject.ContainsKey(member.Name))
 				{
-					member.SetValue(result, DeserializeField(member.Type, json[member.Name]));
+					member.SetValue(result, DeserializeField(member.Type, jsonObject[member.Name]));
 				}
 			}
 
 			return result;
+		}
+
+		static object DeserializeArray(Type target, JsonArray jsonArray)
+		{
+			// TODO Finish this implementation. There are a few curveballs with using reflection and figuring out what 
+			// the actual type of the IList's elements are, further exasperated by conrecte implementations which might only be implementing IList.
+			return null;
 		}
 		#endregion
 	}

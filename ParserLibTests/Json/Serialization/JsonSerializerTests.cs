@@ -1,7 +1,7 @@
-﻿using System;
+﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using ParserLib.Json;
 using ParserLib.Json.Serialization;
 
 namespace ParserLibTests.Json.Serialization
@@ -9,68 +9,107 @@ namespace ParserLibTests.Json.Serialization
 	[TestClass]
 	public class JsonSerializerTests
 	{
-		[JsonSerializable(SerializationMode.OptIn)]
-		public class Tester
+		#region Nested Types
+		public enum TrainingStatus
 		{
-			[JsonProperty]
-			public string Stab { get; set; }
-			public string Help { get => mHelp; set => mHelp = value; }
-			public int GateCode { get => mGateCode; }
-
-			public string Murderer;
-
-			[JsonProperty("Help")]
-			private string mHelp;
-
-			[JsonProperty("GateCode")]
-			private int mGateCode;
-
-			private string[] mStrings = { null, "hello", "world", "nex", "sacramentum" };
-
-			public Tester()
-			{
-				Stab = "stab";
-				Help = "She screamed for help!";
-
-				Murderer = "Nex";
-
-				mGateCode = 1234;
-			}
+			Untrained,
+			InTraining,
+			Trained
 		}
 
-		[JsonSerializable(SerializationMode.All)]
-		public class KittyTester : Tester
+		[JsonSerializable]
+		public sealed class Pet
 		{
-			public int WitchNumber { get; set; }
-			internal string KatType { get; set; }
+			public bool IsVaccinated { get; set; }
+
+			public string Name { get; set; }
+			public TrainingStatus TrainingStatus { get; set; }
 		}
 
-		[TestMethod]
-		public void TestMethod1()
+		[JsonSerializable]
+		public sealed class Tester
 		{
-			string json = JsonSerializer.Serialize(new Tester());
+			public bool IsActive { get; set; }
 
-			Console.WriteLine(json);
+			public string Name { get; set; }
+			public string Surname { get; set; }
 
-			json = JsonSerializer.Serialize(new {
-				Hello = "Hello?",
-				World = "This is scary."
-			});
+			public int Age { get; set; }
 
-			Console.WriteLine(json);
-
-			json = JsonSerializer.Serialize(new KittyTester());
-
-			Console.WriteLine(json);
-
+			public List<Pet> Pets { get; set; } = new List<Pet>();
 		}
 
-		[TestMethod]
-		public void TestMethod2()
+		[JsonSerializable]
+		public sealed class Settings
 		{
-			var root = JsonParser.ParseFromFile<JsonObject>(@"D:\Libraries\Desktop\JsonTest\Rory.json");
+			public double MusicVolume { get; set; } = 0.7;
+			public double EffectsVolume { get; set; } = 0.8;
 
-			Console.WriteLine(root.Count);
+			public double InterfaceVolume { get; set; } = 0.5;
+
+			public bool AllowNotifications { get; set; } = true;
 		}
+		#endregion
+
+
+		#region Tests - Serialization
+		[TestMethod, TestCategory("JsonSerializer - Serialization")]
+		public void SerializeObject_SimpleObject_DefaultValues()
+		{
+			var serializableObject = new Settings();
+
+			string result = JsonSerializer.Serialize(serializableObject);
+
+			Assert.AreEqual("{\"MusicVolume\":0.7,\"EffectsVolume\":0.8,\"InterfaceVolume\":0.5,\"AllowNotifications\":true}", result);
+		}
+
+		[TestMethod, TestCategory("JsonSerializer - Serialization")]
+		public void SerializeObject_SimpleObject_WithEnum()
+		{
+			var serializableObject = new Pet {
+				IsVaccinated = true,
+				Name = "Fluffy",
+				TrainingStatus = TrainingStatus.Trained
+			};
+
+			string result = JsonSerializer.Serialize(serializableObject);
+
+			Assert.AreEqual("{\"IsVaccinated\":true,\"Name\":\"Fluffy\",\"TrainingStatus\":2}", result);
+		}
+
+		[TestMethod, TestCategory("JsonSerializer - Serialization")]
+		public void SerializeObject_ComplexObject_DefaultValues()
+		{
+			var serializableObject = new Tester();
+
+			string result = JsonSerializer.Serialize(serializableObject);
+
+			Assert.AreEqual("{\"IsActive\":false,\"Name\":null,\"Surname\":null,\"Age\":0,\"Pets\":[]}", result);
+		}
+
+		[TestMethod, TestCategory("JsonSerializer - Serialization")]
+		public void SerializeObject_ComplexObject_NonDefaultValues()
+		{
+			var serializableObject = new Tester {
+				IsActive = false,
+				Name = "Tester",
+				Surname = "McTester",
+				Age = 25,
+				Pets = new List<Pet> {
+					new Pet { Name = "Pet1" },
+					new Pet { Name = "Pet2", TrainingStatus = TrainingStatus.InTraining }
+				} 
+			};
+
+			string result = JsonSerializer.Serialize(serializableObject);
+
+			Assert.AreEqual(
+				"{\"IsActive\":false,\"Name\":\"Tester\",\"Surname\":\"McTester\",\"Age\":25,\"Pets\":[{\"IsVaccinated\":false,\"Name\":\"Pet1\",\"TrainingStatus\":0},{\"IsVaccinated\":false,\"Name\":\"Pet2\",\"TrainingStatus\":1}]}",
+				result
+			);
+		}
+
+		// TODO Write more tests as the above tests only test "best cases" where the the API of a class is nice and public without any transient weirdness.
+		#endregion
 	}
 }

@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # ParserLib
 
 ParserLib is a C# library containing implementations of parsers for various text-based data interchange formats. The project started due to frustration with a certain programming environment that will not be named's substandard JSON library. 

@@ -2,7 +2,7 @@
 
 # ParserLib
 
-ParserLib is a C# library containing implementations of parsers for various text-based data interchange formats. The project started due to frustration with a certain programming environment that will not be named's substandard JSON library. 
+ParserLib is a C# library aiming to contain implementations of parsers for various text-based data interchange formats. The project started due to frustration with a certain programming environment that will not be named's substandard JSON library. 
 
 Currently it only support JSON, but will support other formats in the future.
 

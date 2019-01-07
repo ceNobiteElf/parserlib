@@ -1,6 +1,8 @@
 # ParserLib
 
-ParserLib is a C# library containing implementations of parsers for various text-based data interchange formats. The project started due to frustration with a certain programming environment that will not be named's substandard JSON library.
+ParserLib is a C# library containing implementations of parsers for various text-based data interchange formats. The project started due to frustration with a certain programming environment that will not be named's substandard JSON library. 
+
+Currently it only support JSON, but will support other formats in the future.
 
 ## ParserLib.Json
 Currently ParserLib fully supports JSON parsing from strings and files and is standards compliant. There are common deviations that are supported, such as the use of single quotation marks (`'`), however date parsing is wholly unsupported. 
@@ -30,7 +32,7 @@ Console.WriteLine(jsonElement["Name"]);
 // OUTPUT: Tester
 ```
 
-JSON objects and arrays can be stringified or written to file through the `JsonWriter` class, only the root level element needs to be provided along with any options. For example:
+JSON objects and arrays can be stringified or written to file through the `JsonWriter` class. Only the root level element needs to be provided along with any options. For example:
 
 ```c#
 var options = new JsonWriterOptions { PrettyPrint = true, TabWidth = '2' };
